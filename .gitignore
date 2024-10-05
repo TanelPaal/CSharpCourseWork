@@ -1,7 +1,7 @@
 # Common IntelliJ Platform excludes
 
 # User specific
-
+**/.idea
 
 # Sensitive or high-churn files
 **/.idea/**/dataSources/
