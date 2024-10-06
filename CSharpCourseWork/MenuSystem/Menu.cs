@@ -54,9 +54,21 @@ public class Menu
         }
         
         MenuItems.Add(_menuItemExit);
-        
-        
-        // TODO: validate menu items for shortcut conflict!
+
+        ValidateMenuItems();
+    }
+    
+    // Check for duplicate Menu Items.
+    private void ValidateMenuItems()
+    {
+        var shortcuts = new HashSet<string>();
+        foreach (var menuItem in MenuItems)
+        {
+            if (!shortcuts.Add(menuItem.Shortcut.ToUpper()))
+            {
+                throw new ApplicationException($"Duplicate shortcut found: {menuItem.Shortcut}");
+            }
+        }
     }
 
     public string Run()
