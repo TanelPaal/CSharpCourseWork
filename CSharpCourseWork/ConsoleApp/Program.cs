@@ -1,15 +1,48 @@
 ﻿using MenuSystem;
 
-var mainMenu = new Menu("TIC-TAC-TWO", [
+var deepMenu = new Menu(
+    EMenuLevel.Deep,
+    "TIC-TAC-TWO DEEP", [
+        new MenuItem()
+        {
+            Shortcut = "Y",
+            Title = "YYYYYYY",
+            MenuItemAction = DummyMethod
+        },
+    ]);
+
+var optionsMenu = new Menu(
+    EMenuLevel.Secondary,
+    "TIC-TAC-TWO Options", [
+        new MenuItem()
+        {
+            Shortcut = "X",
+            Title = "X Starts",
+            MenuItemAction = deepMenu.Run
+        },
+        new MenuItem()
+        {
+            Shortcut = "O",
+            Title = "O Starts",
+            MenuItemAction = DummyMethod
+        }
+        
+    ]);
+    
+var mainMenu = new Menu(
+    EMenuLevel.Main,
+    "TIC-TAC-TWO", [
     new MenuItem()
     {
         Shortcut = "O",
         Title = "Options",
+        MenuItemAction = optionsMenu.Run
     },
     new MenuItem()
     {
         Shortcut = "N",
         Title = "New Game",
+        MenuItemAction = DummyMethod
     }
 ]);
 
@@ -18,37 +51,9 @@ mainMenu.Run();
 return;
 // ========================================
 
-static void MenuMain()
+string DummyMethod()
 {
-    MenuStart();
-    
-    Console.WriteLine("O) Options");
-    Console.WriteLine("N) New Game");
-    Console.WriteLine("L) Load Game");
-    Console.WriteLine("Q) Exit");
-    
-    MenuEnd();
-}
-
-void MenuOptions()
-{
-    MenuStart();
-    
-    Console.WriteLine("Choose symbol for player one (X)");
-    Console.WriteLine("Choose symbol for player one (O)");
-    
-    MenuEnd();
-}
-
-static void MenuEnd()
-{
-    Console.WriteLine();
-    Console.Write(">");
-}
-
-static void MenuStart()
-{
-    Console.Clear();
-    Console.WriteLine("TIC-TAC-TWO");
-    Console.WriteLine("==================");
+    Console.Write("Just press any key to get out from here! (Any key - as a random choice from keyboard....)");
+    Console.ReadKey();
+    return "foobar";
 }
