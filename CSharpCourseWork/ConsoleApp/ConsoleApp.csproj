@@ -8,7 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MenuSystem\MenuSystem.csproj" />
+        <ProjectReference Include="..\ConsoleUI\ConsoleUI.csproj" />
+        <ProjectReference Include="..\MenuSystem\MenuSystem.csproj" />
+        <ProjectReference Include="..\GameBrain\GameBrain.csproj" />
     </ItemGroup>
 
 </Project>

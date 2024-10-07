@@ -1,4 +1,7 @@
 ﻿using MenuSystem;
+using GameBrain;
+
+var gameInstance = new TicTacTwoBrain(5);
 
 var deepMenu = new Menu(
     EMenuLevel.Deep,
@@ -42,7 +45,7 @@ var mainMenu = new Menu(
     {
         Shortcut = "N",
         Title = "New Game",
-        MenuItemAction = DummyMethod
+        MenuItemAction = NewGame
     }
 ]);
 
@@ -56,4 +59,23 @@ string DummyMethod()
     Console.Write("Just press any key to get out from here! (Any key - as a random choice from keyboard....)");
     Console.ReadKey();
     return "foobar";
+}
+
+string NewGame()
+{
+    ConsoleUI.Visualizer.DrawBoard(gameInstance);
+    
+    Console.Write("Give me coordinates <x,y>:");
+    var input = Console.ReadLine()!;
+    var inputSplit = input.Split(",");
+    var inputX = int.Parse(inputSplit[0]);
+    var inputY = int.Parse(inputSplit[1]);
+    gameInstance.MakeAMove(inputX, inputY);
+    
+    // loop
+    // draw the board again
+    // ask input again
+    // is game over?
+    
+    return "";
 }
