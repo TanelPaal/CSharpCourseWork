@@ -12,11 +12,11 @@ public class ConfigRepository
         },
         new GameConfiguration()
         {
-            Name = "Big 10x10",
-            BoardSizeWidth = 10,
-            BoardSizeHeight = 10,
-            WinCondition = 4,
-            MovePieceAfterNMoves = 3,
+            Name = "Big 5x5",
+            BoardSizeWidth = 5,
+            BoardSizeHeight = 5,
+            WinCondition = 4, // not used anywhere else besides here
+            MovePieceAfterNMoves = 4,
         },
     };
 

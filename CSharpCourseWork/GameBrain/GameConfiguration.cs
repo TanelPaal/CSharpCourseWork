@@ -13,6 +13,9 @@ public record struct GameConfiguration()
     // 0 disabled
     public int MovePieceAfterNMoves { get; set; } = 0;
 
+    public int[] PlayableAreaPos { get; set; } = { 1, 1 };
+    
+
     public override string ToString() =>
         $"Board {BoardSizeWidth}x{BoardSizeHeight}, " +
         "to win: {WinCondition}, " +
