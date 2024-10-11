@@ -47,10 +47,78 @@ public class TicTacTwoBrain
 
         _gameBoard[x, y] = _nextMoveBy;
         
+        // Check for win condition.
+        if (CheckWinCondition())
+        {
+            Console.WriteLine($"{_nextMoveBy} wins!");
+            return true;
+        }
+        
         // flip the next piece
         _nextMoveBy = _nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
 
         return true;
+    }
+
+    public bool CheckWinCondition()
+    {
+        // Check rows
+        for (int y = 0; y < DimY; y++)
+        {
+            for (int x = 0; x <= DimX - 3; x++)
+            {
+                if (_gameBoard[x, y] != EGamePiece.Empty &&
+                    _gameBoard[x, y] == _gameBoard[x + 1, y] &&
+                    _gameBoard[x, y] == _gameBoard[x + 2, y])
+                {
+                    return true;
+                }
+            }
+        }
+        
+        // Check columns
+        for (int x = 0; x < DimX; x++)
+        {
+            for (int y = 0; y <= DimY - 3; y++)
+            {
+                if (_gameBoard[x, y] != EGamePiece.Empty &&
+                    _gameBoard[x, y] == _gameBoard[x, y + 1] &&
+                    _gameBoard[x, y] == _gameBoard[x, y + 2])
+                {
+                    return true;
+                }
+            }
+        }
+        
+        // Check diagonals (top-left to bottom-right)
+        for (int x = 0; x <= DimX - 3; x++)
+        {
+            for (int y = 0; y <= DimY - 3; y++)
+            {
+                if (_gameBoard[x, y] != EGamePiece.Empty &&
+                    _gameBoard[x, y] == _gameBoard[x + 1, y + 1] &&
+                    _gameBoard[x, y] == _gameBoard[x + 2, y + 2])
+                {
+                    return true;
+                }
+            }
+        }
+
+        // Check diagonals (bottom-left to top-right)
+        for (int x = 0; x <= DimX - 3; x++)
+        {
+            for (int y = 2; y < DimY; y++)
+            {
+                if (_gameBoard[x, y] != EGamePiece.Empty &&
+                    _gameBoard[x, y] == _gameBoard[x + 1, y - 1] &&
+                    _gameBoard[x, y] == _gameBoard[x + 2, y - 2])
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public void ResetGame()

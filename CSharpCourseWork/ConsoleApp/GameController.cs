@@ -37,11 +37,19 @@ public static class GameController
             var inputSplit = input.Split(",");
             var inputX = int.Parse(inputSplit[0]);
             var inputY = int.Parse(inputSplit[1]);
-            gameInstance.MakeAMove(inputX, inputY);
+            if (gameInstance.MakeAMove(inputX, inputY))
+            {
+                if (gameInstance.CheckWinCondition())
+                {
+                    ConsoleUI.Visualizer.DrawBoard(gameInstance);
+                    Console.WriteLine("Game Over!");
+                    break;
+                }
+            }
 
         } while (true);
-        
-        
+
+        return "Game Over";
     }
 
     private static string ChooseConfiguration()
