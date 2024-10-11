@@ -40,4 +40,20 @@ public static class Visualizer
             _ => "_"
         };
     }
+    
+    private static void SetConsoleColor(EGamePiece piece)
+    {
+        switch (piece)
+        {
+            case EGamePiece.X:
+                Console.ForegroundColor = ConsoleColor.Red;
+                break;
+            case EGamePiece.O:
+                Console.ForegroundColor = ConsoleColor.Blue;
+                break;
+            case EGamePiece.Empty:
+                Console.ForegroundColor = ConsoleColor.Gray;
+                break;
+        }
+    }
 }

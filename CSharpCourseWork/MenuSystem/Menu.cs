@@ -25,7 +25,15 @@ public class Menu
     
     private EMenuLevel _menuLevel { get; set; }
     
-    public Menu(EMenuLevel menuLevel, string menuHeader, List<MenuItem> menuItems)
+    private bool _isCustomMenu { get; set; }
+
+    public void SetMenuItemAction(string shortCut, Func<string> action)
+    {
+        var menuItem = MenuItems.Single(m => m.Shortcut == shortCut);
+        menuItem.MenuItemAction = action;
+    }
+    
+    public Menu(EMenuLevel menuLevel, string menuHeader, List<MenuItem> menuItems, bool isCustomMenu = false)
     {
         if (string.IsNullOrWhiteSpace(menuHeader))
         {
@@ -40,6 +48,7 @@ public class Menu
         }
         
         MenuItems = menuItems;
+        _isCustomMenu = isCustomMenu;
         _menuLevel = menuLevel;
         
         
@@ -83,6 +92,7 @@ public class Menu
             if (menuItem.MenuItemAction != null)
             {
                 menuReturnValue = menuItem.MenuItemAction!();
+                if (_isCustomMenu) return menuReturnValue;
             }
             
             if (menuItem.Shortcut == _menuItemReturn.Shortcut)
@@ -99,6 +109,7 @@ public class Menu
             {
                 return menuItem.Shortcut;
             }
+            
         } while (true);
     }
 
@@ -124,7 +135,6 @@ public class Menu
                 foreach (var menuItem in MenuItems)
                 {
                     if (menuItem.Shortcut.ToUpper() != userInput) continue;
-
                     return menuItem;
                 }
                 
