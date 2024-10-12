@@ -24,74 +24,19 @@ public static class GameController
     
         var gameInstance = new TicTacTwoBrain(chosenConfig);
         
-        // main loop of gameplay
-        // draw the board again
-        // ask input again
-        // is game over?
-
         do
         { 
             ConsoleUI.Visualizer.DrawBoard(gameInstance);
-            
-            Console.WriteLine("Give me a command, DADDY:");
-            Console.WriteLine("<1 x,y> to place a piece,");
-            Console.WriteLine("<2 x,y> to move the playable area,");
-            Console.WriteLine("<3 x,y x,y> to move a placed piece:");
-            var input = Console.ReadLine()!;
+            var input = GetUserInput();
 
             var result = RegexValidate(input);
-            Console.WriteLine(result.success.ToString());
             if (result.success)
             {
-                int instruction = result.output[0, 0];
-                int firstX = result.output[1, 0];
-                int firstY = result.output[1, 1];
-
-                Console.WriteLine(instruction.ToString() + " " + firstX.ToString() + " " + firstY.ToString());
-
-                if (instruction == 1)
-                {
-                    if (gameInstance.MakeAMove(firstX, firstY))
-                    {
-                        if (gameInstance.CheckWinCondition())
-                        {
-                            ConsoleUI.Visualizer.DrawBoard(gameInstance);
-                            Console.WriteLine("Game Over!");
-                            break;
-                        }
-                    }
-                } else if (instruction == 2)
-                {
-                    if (gameInstance.MovePlayableArea(firstX, firstY))
-                    {
-                        var test = gameInstance._gameArea;
-                        Console.WriteLine($"Playable area moved to ({test[0]}, {test[1]})");
-                    }
-                } else if (instruction == 3)
-                {
-                    if (result.hasSecondCoords)
-                    {
-                        int secondX = result.output[2, 0];
-                        int secondY = result.output[2, 1];
-
-                        gameInstance.MoveExistingPiece(firstX, firstY, secondX, secondY);
-
-
-                    }
-                }
-
-                if (gameInstance.CheckWinCondition())
+                ProcessInput(result, gameInstance);
+                if (gameInstance.CheckWinCondition() || gameInstance.IsBoardFull())
                 {
                     ConsoleUI.Visualizer.DrawBoard(gameInstance);
                     Console.WriteLine("Game Over!");
-                    break;
-                }
-                
-                // Check for tie condition
-                if (gameInstance.IsBoardFull())
-                {
-                    ConsoleUI.Visualizer.DrawBoard(gameInstance);
-                    Console.WriteLine("It's a tie!");
                     break;
                 }
             }
@@ -101,19 +46,50 @@ public static class GameController
             }
 
         } while (true);
-        
-        /*// Reset the game or return to menu
-        Console.WriteLine("Press 'R' to reset the game or any other key to return to the menu.");
-        var key = Console.ReadKey().Key;
-        if (key == ConsoleKey.R)
-        {
-            gameInstance.ResetGame();
-            return MainLoop();
-        }*/
-        
+
         return "Game Over";
     }
 
+    private static string GetUserInput()
+    {
+        Console.WriteLine("Give me a command, DADDY:");
+        Console.WriteLine("<1 x,y> to place a piece,");
+        Console.WriteLine("<2 x,y> to move the playable area,");
+        Console.WriteLine("<3 newX,newY oldX,oldY> to move a placed piece:");
+        return Console.ReadLine()!;
+    }
+
+    private static void ProcessInput((int[,] output, bool success, bool hasSecondCoords) result,
+        TicTacTwoBrain gameInstance)
+    {
+        int instruction = result.output[0, 0];
+        int firstX = result.output[1, 0];
+        int firstY = result.output[1, 1];
+
+        if (instruction == 1)
+        {
+            if (gameInstance.MakeAMove(firstX, firstY) && gameInstance.CheckWinCondition())
+            {
+                ConsoleUI.Visualizer.DrawBoard(gameInstance);
+                Console.WriteLine("Game Over!");
+            }
+        }
+        else if (instruction == 2)
+        {
+            if (gameInstance.MovePlayableArea(firstX, firstY))
+            {
+                var movedGrid = gameInstance._gameArea;
+                Console.WriteLine($"Playable area moved to ({movedGrid[0]}, {movedGrid[1]})");
+            }
+        }
+        else if (instruction == 3 && result.hasSecondCoords)
+        {
+            int secondX = result.output[2, 0];
+            int secondY = result.output[2, 1];
+            gameInstance.MoveExistingPiece(firstX, firstY, secondX, secondY);
+        }
+    }
+    
     private static (int[,] output, bool success, bool hasSecondCoords) RegexValidate(string input)
     {
 
@@ -124,18 +100,17 @@ public static class GameController
 
         // Match the input string against the regex pattern
         Match match = regex.Match(input);
+        
         if (match.Success)
         {
             // Extracting the captured groups
             int firstOutput = int.Parse(match.Groups[1].Value); // First number (1, 2, or 3)
             int firstCoordX = int.Parse(match.Groups[2].Value); // First coordinate X
             int firstCoordY = int.Parse(match.Groups[3].Value); // First coordinate Y
-
-
+            
             int[,] output = new int[4, 2];
 
             output[0, 0] = firstOutput;
-
             output[1, 0] = firstCoordX;
             output[1, 1] = firstCoordY;
 
@@ -152,14 +127,8 @@ public static class GameController
             
             return (output, true, false);
         }
-        else
-        {
-            return (null, false, false);
-        }
-
+        return (null, false, false);
     }
-
-
     
     private static string ChooseConfiguration()
     {

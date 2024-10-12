@@ -4,15 +4,14 @@ public class TicTacTwoBrain
 {
     private EGamePiece[,] _gameBoard;
     private EGamePiece _nextMoveBy { get; set; } = EGamePiece.X;
-
     private GameConfiguration _gameConfiguration;
+    private int _xTurnCount = 0;
+    private int _oTurnCount = 0;
 
     public int[] GameArea => _gameArea;
 
     public int[]  _gameArea { get; set; }
 
-    private int _xTurnCount = 0;
-    private int _oTurnCount = 0;
 
     public TicTacTwoBrain(GameConfiguration gameConfiguration)
     {
@@ -24,8 +23,7 @@ public class TicTacTwoBrain
         Console.WriteLine($"{centerX}, {centerY}");
         _gameArea = new int[] { centerX, centerY };
     }
-
-
+    
     public EGamePiece[,] GameBoard
     {
         get => GetBoard();
@@ -105,6 +103,11 @@ public class TicTacTwoBrain
             Console.WriteLine("The cell you are trying to move doesnt exist");
             return false;  
         }
+        if (_gameBoard[pieceX, pieceY] != _nextMoveBy)
+        {
+            Console.WriteLine("You can only move your own pieces.");
+            return false;
+        }
         if (_gameBoard[x, y] != EGamePiece.Empty)
         {
             Console.WriteLine("Cell is already occupied.");
@@ -112,7 +115,6 @@ public class TicTacTwoBrain
         }
 
         _gameBoard[pieceX, pieceY] = EGamePiece.Empty;
-        
         _gameBoard[x, y] = _nextMoveBy;
 
         if (_nextMoveBy == EGamePiece.X)
@@ -310,9 +312,7 @@ public class TicTacTwoBrain
 
         return false;
     }
-
     
-
     public void ResetGame()
     {
         _gameBoard = new EGamePiece[_gameBoard.GetLength(0), _gameBoard.GetLength(1)];
