@@ -15,7 +15,6 @@ public class ConfigRepository
             Name = "Big 5x5",
             BoardSizeWidth = 5,
             BoardSizeHeight = 5,
-            WinCondition = 4, // not used anywhere else besides here
             MovePieceAfterNMoves = 4,
         },
     };
@@ -32,4 +31,34 @@ public class ConfigRepository
     {
         return _gameConfigurations.Single(c => c.Name == name);
     }
+    
+    // n
+    // testing 5,5 4
+    
+     public string CreateGameConfiguration()
+     {
+         Console.WriteLine("Enter the name of the new configuration:");
+         string? name = Console.ReadLine();
+
+         Console.WriteLine("Enter the board width:");
+         int? boardWidth = int.Parse(Console.ReadLine());
+
+         Console.WriteLine("Enter the board height:");
+         int? boardHeight = int.Parse(Console.ReadLine());
+
+         Console.WriteLine("Enter the number of moves after which a piece can be moved:");
+         int? movePieceAfterNMoves = int.Parse(Console.ReadLine());
+         
+         
+         GameConfiguration gameConfig = new GameConfiguration()
+         {
+             Name = name ?? "Default name",
+             BoardSizeWidth = boardWidth ?? 5,
+             BoardSizeHeight = boardHeight ?? 5,
+             MovePieceAfterNMoves = movePieceAfterNMoves ?? 4,
+             
+         };
+         _gameConfigurations.Add(gameConfig);
+         return "Created";
+     }
 }

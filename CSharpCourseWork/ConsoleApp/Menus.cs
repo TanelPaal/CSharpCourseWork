@@ -4,6 +4,7 @@ namespace ConsoleApp;
 
 public static class Menus
 {
+
     public static readonly Menu DeepMenu = new Menu(
         EMenuLevel.Deep,
         "TIC-TAC-TOE DEEP", [

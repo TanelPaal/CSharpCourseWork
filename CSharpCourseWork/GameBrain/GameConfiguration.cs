@@ -8,12 +8,10 @@ public record struct GameConfiguration()
     public int BoardSizeHeight { get; set; } = 3;
 
     // Number of pieces needed in a straight line to win the game.
-    public int WinCondition { get; set; } = 3;
+    // public int WinCondition { get; set; } = 3;
 
     // 0 disabled
     public int MovePieceAfterNMoves { get; set; } = 0;
-
-    public int[] PlayableAreaPos { get; set; } = { 1, 1 };
     
 
     public override string ToString() =>

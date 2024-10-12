@@ -7,7 +7,7 @@ namespace ConsoleApp;
 
 public static class GameController
 {
-    private static readonly ConfigRepository ConfigRepository = new ConfigRepository();
+    private static ConfigRepository _configRepository = new ConfigRepository();
     
     public static string MainLoop()
     {
@@ -18,8 +18,8 @@ public static class GameController
             return chosenConfigShortcut;
         }
 
-        var chosenConfig = ConfigRepository.GetConfigurationByName(
-            ConfigRepository.GetConfigurationNames()[configNo]
+        var chosenConfig = _configRepository.GetConfigurationByName(
+            _configRepository.GetConfigurationNames()[configNo]
         );
     
         var gameInstance = new TicTacTwoBrain(chosenConfig);
@@ -66,6 +66,17 @@ public static class GameController
                     {
                         var test = gameInstance._gameArea;
                         Console.WriteLine($"Playable area moved to ({test[0]}, {test[1]})");
+                    }
+                } else if (instruction == 3)
+                {
+                    if (result.hasSecondCoords)
+                    {
+                        int secondX = result.output[2, 0];
+                        int secondY = result.output[2, 1];
+
+                        gameInstance.MoveExistingPiece(firstX, firstY, secondX, secondY);
+
+
                     }
                 }
 
@@ -138,9 +149,7 @@ public static class GameController
 
                 return (output, true, true);
             }
-
-
-
+            
             return (output, true, false);
         }
         else
@@ -151,20 +160,28 @@ public static class GameController
     }
 
 
+    
     private static string ChooseConfiguration()
     {
         var configMenuItems = new List<MenuItem>();
 
-        for (int i = 0; i < ConfigRepository.GetConfigurationNames().Count; i++)
+        for (int i = 0; i < _configRepository.GetConfigurationNames().Count; i++)
         {
             var returnValue = i.ToString();
             configMenuItems.Add(new MenuItem()
             {
-                Title = ConfigRepository.GetConfigurationNames()[i],
+                Title = _configRepository.GetConfigurationNames()[i],
                 Shortcut = (i + 1).ToString(),
                 MenuItemAction = () => returnValue
             });
         }
+        
+        configMenuItems.Add(new MenuItem()
+        {
+            Title = "New custom game",
+            Shortcut = "N",
+            MenuItemAction = () => _configRepository.CreateGameConfiguration()
+        });
 
         var configMenu = new Menu(EMenuLevel.Secondary, 
             "Tic-Tac-Two - choose game config",

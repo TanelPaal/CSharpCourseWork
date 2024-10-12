@@ -18,11 +18,10 @@ public class TicTacTwoBrain
     {
         _gameConfiguration = gameConfiguration;
         _gameBoard = new EGamePiece[_gameConfiguration.BoardSizeWidth, _gameConfiguration.BoardSizeHeight];
-        _gameArea = gameConfiguration.PlayableAreaPos;
-        
         // Calculate the center position
-        int centerX = _gameConfiguration.BoardSizeWidth / 2;
-        int centerY = _gameConfiguration.BoardSizeHeight / 2;
+        int centerX = (int)Math.Floor((double)_gameConfiguration.BoardSizeWidth / 2);
+        int centerY = (int)Math.Floor((double)_gameConfiguration.BoardSizeHeight / 2);
+        Console.WriteLine($"{centerX}, {centerY}");
         _gameArea = new int[] { centerX, centerY };
     }
 
@@ -52,6 +51,13 @@ public class TicTacTwoBrain
 
     public bool MovePlayableArea(int x, int y)
     {
+
+        if (Math.Abs(_gameArea[0] - x) > 1 && Math.Abs(_gameArea[1] - y) > 1)
+        {
+            Console.WriteLine("Idiot, you can't move it that far. You saw what happened when we pushed to Moscow!");
+            return false;
+        }
+        
         // Check if the move is allowed based on the turn counts
         if (_gameConfiguration.MovePieceAfterNMoves > 0 &&
             (_xTurnCount + _oTurnCount) < _gameConfiguration.MovePieceAfterNMoves)
@@ -62,7 +68,22 @@ public class TicTacTwoBrain
         
         if (PlayableAreaValidMove(x, y))
         {
+
+            if (_nextMoveBy == EGamePiece.X)
+            {
+                _xTurnCount++;
+            }
+            else
+            {
+                _oTurnCount++;
+            }
+
             _gameArea = [x, y];
+
+
+            _nextMoveBy = _nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+
+
             Console.WriteLine($"Playable area moved to ({x}, {y}).");
             return true;
         }
@@ -71,6 +92,60 @@ public class TicTacTwoBrain
         return false;
     }
 
+    public bool MoveExistingPiece(int x, int y, int pieceX, int pieceY)
+    {
+        if (!ValidMove(x, y))
+        {
+            Console.WriteLine("Invalid move.");
+            return false;
+        }
+
+        if (_gameBoard[pieceX, pieceY] == EGamePiece.Empty)
+        {
+            Console.WriteLine("The cell you are trying to move doesnt exist");
+            return false;  
+        }
+        if (_gameBoard[x, y] != EGamePiece.Empty)
+        {
+            Console.WriteLine("Cell is already occupied.");
+            return false;
+        }
+
+        _gameBoard[pieceX, pieceY] = EGamePiece.Empty;
+        
+        _gameBoard[x, y] = _nextMoveBy;
+
+        if (_nextMoveBy == EGamePiece.X)
+        {
+            _xTurnCount++;
+        }
+        else
+        {
+            _oTurnCount++;
+        }
+        
+        // Check for win condition.
+        if (CheckWinCondition())
+        {
+            Console.WriteLine($"{_nextMoveBy} wins!");
+            return true;
+        }
+        
+        // Check for tie condition.
+        if (IsBoardFull())
+        {
+            Console.WriteLine("It's a tie!");
+            return true;
+        }
+
+        // Console.WriteLine(GetBoard());
+        
+        // flip the next piece
+        _nextMoveBy = _nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+
+        return true;
+        
+    }
 
     public bool PlayableAreaValidMove(int x, int y)
     {
@@ -98,6 +173,9 @@ public class TicTacTwoBrain
 
         return false;
     }
+
+
+
 
     public bool MakeAMove(int x, int y)
     {
@@ -165,7 +243,7 @@ public class TicTacTwoBrain
         // Check rows
         for (int y = 0; y < DimY; y++)
         {
-            for (int x = 0; x <= DimX - _gameConfiguration.WinCondition; x++)
+            for (int x = 0; x <= DimX; x++)
             {
                 if (IsInsidePlayableArea(x, y) && 
                     IsInsidePlayableArea(x + 1, y) && 
@@ -182,7 +260,7 @@ public class TicTacTwoBrain
         // Check columns
         for (int x = 0; x < DimX; x++)
         {
-            for (int y = 0; y <= DimY - _gameConfiguration.WinCondition; y++)
+            for (int y = 0; y <= DimY; y++)
             {
                 if (IsInsidePlayableArea(x, y) && 
                     IsInsidePlayableArea(x, y + 1) && 
@@ -197,9 +275,9 @@ public class TicTacTwoBrain
         }
         
         // Check diagonals (top-left to bottom-right)
-        for (int x = 0; x <= DimX - _gameConfiguration.WinCondition; x++)
+        for (int x = 0; x <= DimX; x++)
         {
-            for (int y = 0; y <= DimY - _gameConfiguration.WinCondition; y++)
+            for (int y = 0; y <= DimY; y++)
             {
                 if (IsInsidePlayableArea(x, y) && 
                     IsInsidePlayableArea(x + 1, y + 1) && 
@@ -214,9 +292,9 @@ public class TicTacTwoBrain
         }
 
         // Check diagonals (bottom-left to top-right)
-        for (int x = 0; x <= DimX - _gameConfiguration.WinCondition; x++)
+        for (int x = 0; x <= DimX; x++)
         {
-            for (int y = _gameConfiguration.WinCondition - 1; y < DimY; y++)
+            for (int y = 0; y < DimY; y++)
             {
                 if (IsInsidePlayableArea(x, y) && 
                     IsInsidePlayableArea(x + 1, y - 1) && 
