@@ -59,6 +59,17 @@ public static class Visualizer
 
     private static string DrawGamePiece(EGamePiece piece)
     {
+        switch (piece)
+        {
+            case EGamePiece.X:
+                Console.ForegroundColor = ConsoleColor.Red;
+                break;
+            case EGamePiece.O:
+                Console.ForegroundColor = ConsoleColor.Green;
+                break;
+        }
+        
+        
         return piece switch
         {
             EGamePiece.Empty => " ",

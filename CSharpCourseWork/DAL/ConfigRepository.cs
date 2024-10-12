@@ -39,25 +39,31 @@ public class ConfigRepository
      {
          Console.WriteLine("Enter the name of the new configuration:");
          string? name = Console.ReadLine();
+         if (string.IsNullOrWhiteSpace(name))
+         {
+             name = "Default name";
+         }
 
          Console.WriteLine("Enter the board width:");
-         int? boardWidth = int.Parse(Console.ReadLine());
+         string? boardWidthInput = Console.ReadLine();
+         int boardWidth = string.IsNullOrWhiteSpace(boardWidthInput) ? 5 : int.Parse(boardWidthInput);
 
          Console.WriteLine("Enter the board height:");
-         int? boardHeight = int.Parse(Console.ReadLine());
+         string? boardHeightInput = Console.ReadLine();
+         int boardHeight = string.IsNullOrWhiteSpace(boardHeightInput) ? 5 : int.Parse(boardHeightInput);
 
          Console.WriteLine("Enter the number of moves after which a piece can be moved:");
-         int? movePieceAfterNMoves = int.Parse(Console.ReadLine());
-         
-         
+         string? movePieceAfterNMovesInput = Console.ReadLine();
+         int movePieceAfterNMoves = string.IsNullOrWhiteSpace(movePieceAfterNMovesInput) ? 4 : int.Parse(movePieceAfterNMovesInput);
+
          GameConfiguration gameConfig = new GameConfiguration()
          {
-             Name = name ?? "Default name",
-             BoardSizeWidth = boardWidth ?? 5,
-             BoardSizeHeight = boardHeight ?? 5,
-             MovePieceAfterNMoves = movePieceAfterNMoves ?? 4,
-             
+             Name = name,
+             BoardSizeWidth = boardWidth,
+             BoardSizeHeight = boardHeight,
+             MovePieceAfterNMoves = movePieceAfterNMoves,
          };
+         
          _gameConfigurations.Add(gameConfig);
          return "Created";
      }
