@@ -7,12 +7,12 @@ public class TicTacTwoBrain
     private GameConfiguration _gameConfiguration;
     private int _xTurnCount = 0;
     private int _oTurnCount = 0;
+    private int _xPieceCount = 0; // Track the number of X pieces
+    private int _oPieceCount = 0; // Track the number of O pieces
 
     public int[] GameArea => _gameArea;
-
     public int[]  _gameArea { get; set; }
-
-
+    
     public TicTacTwoBrain(GameConfiguration gameConfiguration)
     {
         _gameConfiguration = gameConfiguration;
@@ -175,8 +175,6 @@ public class TicTacTwoBrain
 
         return false;
     }
-
-
 
 
     public bool MakeAMove(int x, int y)

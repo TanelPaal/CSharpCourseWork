@@ -12,6 +12,7 @@ public record struct GameConfiguration()
 
     // 0 disabled
     public int MovePieceAfterNMoves { get; set; } = 0;
+    public int PieceLimit { get; set; } = 4;
     
 
     public override string ToString() =>
