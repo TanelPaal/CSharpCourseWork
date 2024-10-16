@@ -9,6 +9,7 @@ public class TicTacTwoBrain
     private int _oTurnCount = 0;
     private int _xPieceCount = 0; // Track the number of X pieces
     private int _oPieceCount = 0; // Track the number of O pieces
+    private EGamePiece _currentMoveBy = EGamePiece.X;
 
     public int[] GameArea => _gameArea;
     public int[]  _gameArea { get; set; }
@@ -46,6 +47,25 @@ public class TicTacTwoBrain
 
         return copyOfBoard;
     }
+    
+    private void IncrementTurnCount()
+    {
+        if (_nextMoveBy == EGamePiece.X)
+        {
+            _xTurnCount++;
+        }
+        else
+        {
+            _oTurnCount++;
+        }
+    }
+    
+    private EGamePiece GetNextMoveBy()
+    {
+        EGamePiece currentMove = _currentMoveBy;
+        _currentMoveBy = _currentMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+        return currentMove;
+    }
 
     public bool MovePlayableArea(int x, int y)
     {
@@ -67,21 +87,12 @@ public class TicTacTwoBrain
         if (PlayableAreaValidMove(x, y))
         {
 
-            if (_nextMoveBy == EGamePiece.X)
-            {
-                _xTurnCount++;
-            }
-            else
-            {
-                _oTurnCount++;
-            }
+            IncrementTurnCount();
 
             _gameArea = [x, y];
-
-
-            _nextMoveBy = _nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
-
-
+            
+            GetNextMoveBy();
+            
             Console.WriteLine($"Playable area moved to ({x}, {y}).");
             return true;
         }
@@ -117,14 +128,7 @@ public class TicTacTwoBrain
         _gameBoard[pieceX, pieceY] = EGamePiece.Empty;
         _gameBoard[x, y] = _nextMoveBy;
 
-        if (_nextMoveBy == EGamePiece.X)
-        {
-            _xTurnCount++;
-        }
-        else
-        {
-            _oTurnCount++;
-        }
+        IncrementTurnCount();
         
         // Check for win condition.
         if (CheckWinCondition())
@@ -143,7 +147,7 @@ public class TicTacTwoBrain
         // Console.WriteLine(GetBoard());
         
         // flip the next piece
-        _nextMoveBy = _nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+        GetNextMoveBy();
 
         return true;
         
@@ -194,14 +198,7 @@ public class TicTacTwoBrain
 
         _gameBoard[x, y] = _nextMoveBy;
 
-        if (_nextMoveBy == EGamePiece.X)
-        {
-            _xTurnCount++;
-        }
-        else
-        {
-            _oTurnCount++;
-        }
+        IncrementTurnCount();
         
         // Check for win condition.
         if (CheckWinCondition())
@@ -218,7 +215,7 @@ public class TicTacTwoBrain
         }
         
         // flip the next piece
-        _nextMoveBy = _nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+        GetNextMoveBy();
 
         return true;
     }
@@ -307,7 +304,6 @@ public class TicTacTwoBrain
                 }
             }
         }
-
         return false;
     }
     

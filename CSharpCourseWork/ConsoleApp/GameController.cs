@@ -33,7 +33,7 @@ public static class GameController
             if (result.success)
             {
                 ProcessInput(result, gameInstance);
-                if (gameInstance.CheckWinCondition() || gameInstance.IsBoardFull())
+                if (IsGameOver(gameInstance))
                 {
                     ConsoleUI.Visualizer.DrawBoard(gameInstance);
                     Console.WriteLine("Game Over!");
@@ -48,6 +48,11 @@ public static class GameController
         } while (true);
 
         return "Game Over";
+    }
+    
+    private static bool IsGameOver(TicTacTwoBrain gameInstance)
+    {
+        return gameInstance.CheckWinCondition() || gameInstance.IsBoardFull();
     }
 
     private static string GetUserInput()
