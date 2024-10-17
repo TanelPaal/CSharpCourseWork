@@ -61,13 +61,28 @@ public static class GameController
         Console.WriteLine("<1 x,y> to place a piece,");
         Console.WriteLine("<2 x,y> to move the playable area,");
         Console.WriteLine("<3 newX,newY oldX,oldY> to move a placed piece:");
+        Console.WriteLine("E to exit the game:");
         return Console.ReadLine()!;
     }
 
     private static void ProcessInput((int[,] output, bool success, bool hasSecondCoords) result,
         TicTacTwoBrain gameInstance)
     {
+        
+        if (!result.success)
+        {
+            Console.WriteLine("Invalid input.");
+            return;
+        }
+        
         int instruction = result.output[0, 0];
+        
+        if (instruction == 'E') // Exit Method
+        {
+            Console.WriteLine("Exiting the game...");
+            Environment.Exit(0);
+        }
+        
         int firstX = result.output[1, 0];
         int firstY = result.output[1, 1];
 
@@ -93,10 +108,16 @@ public static class GameController
             int secondY = result.output[2, 1];
             gameInstance.MoveExistingPiece(firstX, firstY, secondX, secondY);
         }
+        
     }
     
     private static (int[,] output, bool success, bool hasSecondCoords) RegexValidate(string input)
     {
+        if (input.Trim().ToUpper() == "E")
+        {
+            return (new int[1, 1] { { 'E' } }, true, false);
+        }
+
 
         string pattern = @"^(1|2|3)\s+(\d{1,2}),(\d{1,2})(?:\s+(\d{1,2}),(\d{1,2}))?$";
 
