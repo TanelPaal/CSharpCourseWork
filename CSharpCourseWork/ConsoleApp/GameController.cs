@@ -7,7 +7,10 @@ namespace ConsoleApp;
 
 public static class GameController
 {
-    private static ConfigRepository _configRepository = new ConfigRepository();
+    private static IConfigRepository _configRepository = new ConfigJsonRepository();
+    private static IGameRepository _gameRepository = new GameJsonRespository();
+
+
     
     public static string MainLoop()
     {
@@ -28,6 +31,15 @@ public static class GameController
         { 
             ConsoleUI.Visualizer.DrawBoard(gameInstance);
             var input = GetUserInput();
+
+            if (input.Equals("save", StringComparison.InvariantCultureIgnoreCase))
+            {
+                _gameRepository.SaveGame(
+                    gameInstance.GetGameStateJson(),
+                    gameInstance.GetGameConfigName()
+                );
+                break;
+            }
 
             var result = RegexValidate(input);
             if (result.success)
@@ -98,7 +110,7 @@ public static class GameController
         {
             if (gameInstance.MovePlayableArea(firstX, firstY))
             {
-                var movedGrid = gameInstance._gameArea;
+                var movedGrid = gameInstance._gameState._gameArea;
                 Console.WriteLine($"Playable area moved to ({movedGrid[0]}, {movedGrid[1]})");
             }
         }

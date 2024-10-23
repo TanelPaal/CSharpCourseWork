@@ -26,7 +26,7 @@ public static class Visualizer
             for (var x = 0; x < gameInstance.DimX; x++)
             {
                 SetBackgroundColor(x, y);
-                Console.Write(" " + DrawGamePiece(gameInstance.GameBoard[x, y]) + " ");
+                Console.Write(" " + DrawGamePiece(gameInstance.GameBoard[x][y]) + " ");
                 Console.ResetColor();
                 if (x == gameInstance.DimX - 1) continue;
                 Console.Write("|");

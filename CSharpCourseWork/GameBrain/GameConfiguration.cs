@@ -7,8 +7,6 @@ public record struct GameConfiguration()
     public int BoardSizeWidth { get; set; } = 3;
     public int BoardSizeHeight { get; set; } = 3;
 
-    // Number of pieces needed in a straight line to win the game.
-    // public int WinCondition { get; set; } = 3;
 
     // 0 disabled
     public int MovePieceAfterNMoves { get; set; } = 0;
@@ -17,6 +15,5 @@ public record struct GameConfiguration()
 
     public override string ToString() =>
         $"Board {BoardSizeWidth}x{BoardSizeHeight}, " +
-        "to win: {WinCondition}, " +
-        "can move piece after {MovePieceAfterNMoves} moves";
+        $"can move piece after {MovePieceAfterNMoves} moves";
 }

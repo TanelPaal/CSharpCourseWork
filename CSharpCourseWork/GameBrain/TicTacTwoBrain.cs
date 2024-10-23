@@ -2,55 +2,77 @@
 
 public class TicTacTwoBrain
 {
-    private EGamePiece[,] _gameBoard;
-    private EGamePiece _nextMoveBy { get; set; } = EGamePiece.X;
-    private GameConfiguration _gameConfiguration;
     private int _xTurnCount = 0;
     private int _oTurnCount = 0;
-    private int _xPieceCount = 0; // Track the number of X pieces
-    private int _oPieceCount = 0; // Track the number of O pieces
-    private EGamePiece _currentMoveBy = EGamePiece.X;
+    private int _xPieceCount = 0; // Track the number of X pieces (not finished)
+    private int _oPieceCount = 0; // Track the number of O pieces (not finished)
 
-    public int[] GameArea => _gameArea;
-    public int[]  _gameArea { get; set; }
-    
+    public  GameState _gameState;
+
+    // public int[] GameArea => _gameArea;
+    // public int[]  _gameArea { get; set; }
+
     public TicTacTwoBrain(GameConfiguration gameConfiguration)
     {
-        _gameConfiguration = gameConfiguration;
-        _gameBoard = new EGamePiece[_gameConfiguration.BoardSizeWidth, _gameConfiguration.BoardSizeHeight];
+        var gameBoard = new EGamePiece[gameConfiguration.BoardSizeWidth][];
+        for (var x = 0; x < gameBoard.Length; x++)
+        {
+            gameBoard[x] = new EGamePiece[gameConfiguration.BoardSizeHeight];
+        }
+
         // Calculate the center position
-        int centerX = (int)Math.Floor((double)_gameConfiguration.BoardSizeWidth / 2);
-        int centerY = (int)Math.Floor((double)_gameConfiguration.BoardSizeHeight / 2);
+        int centerX = (int)Math.Floor((double)gameConfiguration.BoardSizeWidth / 2);
+        int centerY = (int)Math.Floor((double)gameConfiguration.BoardSizeHeight / 2);
+        int[] _gameArea = { centerX, centerY };
         Console.WriteLine($"{centerX}, {centerY}");
-        _gameArea = new int[] { centerX, centerY };
-    }
-    
-    public EGamePiece[,] GameBoard
-    {
-        get => GetBoard();
-        private set => _gameBoard = value;
+
+
+        _gameState = new GameState(
+            gameBoard,
+            gameConfiguration,
+            _gameArea
+        );
     }
 
-    public int DimX => _gameBoard.GetLength(0);
-    public int DimY => _gameBoard.GetLength(1);
-    
-    private EGamePiece[,] GetBoard()
+    public string GetGameStateJson()
     {
-        var copyOfBoard = new EGamePiece[_gameBoard.GetLength(0), _gameBoard.GetLength(1)];
-        for (var x = 0; x < _gameBoard.GetLength(0); x++)
+        return _gameState.ToString();
+    }
+
+    public string GetGameConfigName()
+    {
+        return _gameState.GameConfiguration.Name;
+    }
+    public EGamePiece[][] GameBoard
+    {
+        get => GetBoard();
+        private set => _gameState.GameBoard = value;
+    }
+
+    public int DimX => _gameState.GameBoard.Length;
+    public int DimY => _gameState.GameBoard[0].Length;
+    
+    private EGamePiece[][] GetBoard()
+    {
+        var copyOfBoard = new EGamePiece[_gameState.GameBoard.GetLength(0)][];
+        //, _gameState.GameBoard.GetLength(1)];
+        for (var x = 0; x < _gameState.GameBoard.Length; x++)
         {
-            for (var y = 0; y < _gameBoard.GetLength(1); y++)
+            copyOfBoard[x] = new EGamePiece[_gameState.GameBoard[x].Length];
+            for (var y = 0; y < _gameState.GameBoard[x].Length; y++)
             {
-                copyOfBoard[x, y] = _gameBoard[x, y];
+                copyOfBoard[x][y] = _gameState.GameBoard[x][y];
             }
         }
 
         return copyOfBoard;
     }
+
+
     
     private void IncrementTurnCount()
     {
-        if (_nextMoveBy == EGamePiece.X)
+        if (_gameState._nextMoveBy == EGamePiece.X)
         {
             _xTurnCount++;
         }
@@ -59,26 +81,23 @@ public class TicTacTwoBrain
             _oTurnCount++;
         }
     }
-    
-    private EGamePiece GetNextMoveBy()
+    private void GetNextMoveBy()
     {
-        EGamePiece currentMove = _currentMoveBy;
-        _currentMoveBy = _currentMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
-        return currentMove;
+        _gameState._nextMoveBy = _gameState._nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
     }
+
 
     public bool MovePlayableArea(int x, int y)
     {
 
-        if (Math.Abs(_gameArea[0] - x) > 1 && Math.Abs(_gameArea[1] - y) > 1)
+        if (Math.Abs(_gameState._gameArea[0] - x) > 1 && Math.Abs(_gameState._gameArea[1] - y) > 1)
         {
             Console.WriteLine("Idiot, you can't move it that far. You saw what happened when we pushed to Moscow!");
             return false;
         }
-        
         // Check if the move is allowed based on the turn counts
-        if (_gameConfiguration.MovePieceAfterNMoves > 0 &&
-            (_xTurnCount + _oTurnCount) < _gameConfiguration.MovePieceAfterNMoves)
+        if (_gameState.GameConfiguration.MovePieceAfterNMoves > 0 &&
+             (_xTurnCount + _oTurnCount) < _gameState.GameConfiguration.MovePieceAfterNMoves)
         {
             Console.WriteLine("Not enough moves made to move the playable area.");
             return false;
@@ -89,7 +108,7 @@ public class TicTacTwoBrain
 
             IncrementTurnCount();
 
-            _gameArea = [x, y];
+            _gameState._gameArea = [x, y];
             
             GetNextMoveBy();
             
@@ -109,31 +128,31 @@ public class TicTacTwoBrain
             return false;
         }
 
-        if (_gameBoard[pieceX, pieceY] == EGamePiece.Empty)
+        if (_gameState.GameBoard[pieceX][pieceY] == EGamePiece.Empty)
         {
             Console.WriteLine("The cell you are trying to move doesnt exist");
             return false;  
         }
-        if (_gameBoard[pieceX, pieceY] != _nextMoveBy)
+        if (_gameState.GameBoard[pieceX][pieceY] != _gameState._nextMoveBy)
         {
             Console.WriteLine("You can only move your own pieces.");
             return false;
         }
-        if (_gameBoard[x, y] != EGamePiece.Empty)
+        if (_gameState.GameBoard[x][y] != EGamePiece.Empty)
         {
             Console.WriteLine("Cell is already occupied.");
             return false;
         }
 
-        _gameBoard[pieceX, pieceY] = EGamePiece.Empty;
-        _gameBoard[x, y] = _nextMoveBy;
+        _gameState.GameBoard[pieceX][pieceY] = EGamePiece.Empty;
+        _gameState.GameBoard[x][y] = _gameState._nextMoveBy;
 
         IncrementTurnCount();
         
         // Check for win condition.
         if (CheckWinCondition())
         {
-            Console.WriteLine($"{_nextMoveBy} wins!");
+            Console.WriteLine($"{_gameState._nextMoveBy} wins!");
             return true;
         }
         
@@ -145,9 +164,8 @@ public class TicTacTwoBrain
         }
 
         // Console.WriteLine(GetBoard());
-        
-        // flip the next piece
         GetNextMoveBy();
+            
 
         return true;
         
@@ -164,8 +182,8 @@ public class TicTacTwoBrain
     
     public bool IsInsidePlayableArea(int x, int y)
     {
-        int centerX = _gameArea[0];
-        int centerY = _gameArea[1];
+        int centerX = _gameState._gameArea[0];
+        int centerY = _gameState._gameArea[1];
         return x >= centerX - 1 && x <= centerX + 1 && y >= centerY - 1 && y <= centerY + 1;
     }
     
@@ -183,27 +201,27 @@ public class TicTacTwoBrain
 
     public bool MakeAMove(int x, int y)
     {
-        Console.WriteLine($"{_nextMoveBy} made a move."); //Console.WriteLine($"{_nextMoveBy} is making a move at ({x}, {y})");
+        Console.WriteLine($"{_gameState._nextMoveBy} made a move."); //Console.WriteLine($"{_nextMoveBy} is making a move at ({x}, {y})");
         
         if (!ValidMove(x, y))
         {
             Console.WriteLine("Invalid move.");
             return false;
         }
-        if (_gameBoard[x, y] != EGamePiece.Empty)
+        if (_gameState.GameBoard[x][y] != EGamePiece.Empty)
         {
             Console.WriteLine("Cell is already occupied.");
             return false;
         }
 
-        _gameBoard[x, y] = _nextMoveBy;
+        _gameState.GameBoard[x][y] = _gameState._nextMoveBy;
 
         IncrementTurnCount();
         
         // Check for win condition.
         if (CheckWinCondition())
         {
-            Console.WriteLine($"{_nextMoveBy} wins!");
+            Console.WriteLine($"{_gameState._nextMoveBy} wins!");
             return true;
         }
         
@@ -213,8 +231,7 @@ public class TicTacTwoBrain
             Console.WriteLine("It's a tie!");
             return true;
         }
-        
-        // flip the next piece
+
         GetNextMoveBy();
 
         return true;
@@ -226,7 +243,7 @@ public class TicTacTwoBrain
         {
             for (int y = 0; y < DimY; y++)
             {
-                if (_gameBoard[x, y] == EGamePiece.Empty)
+                if (_gameState.GameBoard[x][y] == EGamePiece.Empty)
                 {
                     return false;
                 }
@@ -245,9 +262,9 @@ public class TicTacTwoBrain
                 if (IsInsidePlayableArea(x, y) && 
                     IsInsidePlayableArea(x + 1, y) && 
                     IsInsidePlayableArea(x + 2, y) &&
-                    _gameBoard[x, y] != EGamePiece.Empty &&
-                    _gameBoard[x, y] == _gameBoard[x + 1, y] &&
-                    _gameBoard[x, y] == _gameBoard[x + 2, y])
+                    _gameState.GameBoard[x][y] != EGamePiece.Empty &&
+                    _gameState.GameBoard[x][y] == _gameState.GameBoard[x + 1][y] &&
+                    _gameState.GameBoard[x][y] == _gameState.GameBoard[x + 2][y])
                 {
                     return true;
                 }
@@ -262,9 +279,9 @@ public class TicTacTwoBrain
                 if (IsInsidePlayableArea(x, y) && 
                     IsInsidePlayableArea(x, y + 1) && 
                     IsInsidePlayableArea(x, y + 2) &&
-                    _gameBoard[x, y] != EGamePiece.Empty &&
-                    _gameBoard[x, y] == _gameBoard[x, y + 1] &&
-                    _gameBoard[x, y] == _gameBoard[x, y + 2])
+                    _gameState.GameBoard[x][y] != EGamePiece.Empty &&
+                    _gameState.GameBoard[x][y] == _gameState.GameBoard[x][y + 1] &&
+                    _gameState.GameBoard[x][y] == _gameState.GameBoard[x][y + 2])
                 {
                     return true;
                 }
@@ -279,9 +296,9 @@ public class TicTacTwoBrain
                 if (IsInsidePlayableArea(x, y) && 
                     IsInsidePlayableArea(x + 1, y + 1) && 
                     IsInsidePlayableArea(x + 2, y + 2) &&
-                    _gameBoard[x, y] != EGamePiece.Empty &&
-                    _gameBoard[x, y] == _gameBoard[x + 1, y + 1] &&
-                    _gameBoard[x, y] == _gameBoard[x + 2, y + 2])
+                    _gameState.GameBoard[x][y] != EGamePiece.Empty &&
+                    _gameState.GameBoard[x][y] == _gameState.GameBoard[x + 1][y + 1] &&
+                    _gameState.GameBoard[x][y] == _gameState.GameBoard[x + 2][y + 2])
                 {
                     return true;
                 }
@@ -296,9 +313,9 @@ public class TicTacTwoBrain
                 if (IsInsidePlayableArea(x, y) && 
                     IsInsidePlayableArea(x + 1, y - 1) && 
                     IsInsidePlayableArea(x + 2, y - 2) &&
-                    _gameBoard[x, y] != EGamePiece.Empty &&
-                    _gameBoard[x, y] == _gameBoard[x + 1, y - 1] &&
-                    _gameBoard[x, y] == _gameBoard[x + 2, y - 2])
+                    _gameState.GameBoard[x][y] != EGamePiece.Empty &&
+                    _gameState.GameBoard[x][y] == _gameState.GameBoard[x + 1][y - 1] &&
+                    _gameState.GameBoard[x][y] == _gameState.GameBoard[x + 2][ y - 2])
                 {
                     return true;
                 }
@@ -309,8 +326,14 @@ public class TicTacTwoBrain
     
     public void ResetGame()
     {
-        _gameBoard = new EGamePiece[_gameBoard.GetLength(0), _gameBoard.GetLength(1)];
-        _nextMoveBy = EGamePiece.X;
+        var gameBoard = new EGamePiece[_gameState.GameConfiguration.BoardSizeWidth][];
+        for (var x = 0; x < gameBoard.Length; x++)
+        {
+            gameBoard[x] = new EGamePiece[_gameState.GameConfiguration.BoardSizeHeight];
+        }
+
+        _gameState.GameBoard = gameBoard;
+        _gameState._nextMoveBy = EGamePiece.X;
         _xTurnCount = 0;
         _oTurnCount = 0;
         Console.WriteLine("Game has been reset.");

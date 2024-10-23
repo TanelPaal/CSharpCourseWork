@@ -2,7 +2,9 @@
 
 namespace DAL;
 
-public class ConfigRepository
+using System.Text.Json;
+
+public class ConfigRepository: IConfigRepository
 {
     public List<GameConfiguration> _gameConfigurations = new List<GameConfiguration>()
     {
@@ -63,6 +65,8 @@ public class ConfigRepository
              BoardSizeHeight = boardHeight,
              MovePieceAfterNMoves = movePieceAfterNMoves,
          };
+         
+         string json = JsonSerializer.Serialize(gameConfig, new JsonSerializerOptions { WriteIndented = true });
          
          _gameConfigurations.Add(gameConfig);
          return "Created";
