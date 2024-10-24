@@ -10,8 +10,7 @@ public class ConfigJsonRepository : IConfigRepository
     private static IGameRepository gameJsonRespository = new GameJsonRespository();
     public List<string> GetConfigurationNames()
     {
-
-        if (FileHelper.RootFolderGenerator() && FileHelper.DoesRootFolderContainConfigs())
+        if (FileHelper.RootFolderGenerator() || FileHelper.DoesRootFolderContainConfigs())
         {
             //generate directory
 
@@ -47,8 +46,10 @@ public class ConfigJsonRepository : IConfigRepository
         foreach (var configName in defaultConfigurations)
         {
             var gameOption = defaultConfiguration.GetConfigurationByName(configName);
-            var jsonGameOption = JsonSerializer.Serialize(gameOption, new JsonSerializerOptions { WriteIndented = true });
-            gameJsonRespository.SaveGame(jsonGameOption, configName);
+            
+            var jsonGameOption = JsonSerializer.Serialize(gameOption, new JsonSerializerOptions { WriteIndented = true, IncludeFields = true});
+
+            gameJsonRespository.SaveConfig(jsonGameOption, configName);
         }
 
 
@@ -100,7 +101,10 @@ public class ConfigJsonRepository : IConfigRepository
 
         var jsonGameOption = JsonSerializer.Serialize(gameConfig, new JsonSerializerOptions { WriteIndented = true });
 
-        gameJsonRespository.SaveGame(jsonGameOption, configName);
+        gameJsonRespository.SaveConfig(jsonGameOption, configName);
         return "Created";
     }
+    
+    
+
 }

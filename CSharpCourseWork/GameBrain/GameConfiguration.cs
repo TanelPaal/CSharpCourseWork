@@ -16,4 +16,15 @@ public record struct GameConfiguration()
     public override string ToString() =>
         $"Board {BoardSizeWidth}x{BoardSizeHeight}, " +
         $"can move piece after {MovePieceAfterNMoves} moves";
+    
+    public GameConfiguration(string name, int boardSizeWidth, int boardSizeHeight, int movePieceAfterNMoves, int pieceLimit)
+        : this() // Calls the default constructor
+    {
+        // Overwrite default values with provided values
+        Name = name;
+        BoardSizeWidth = boardSizeWidth;
+        BoardSizeHeight = boardSizeHeight;
+        MovePieceAfterNMoves = movePieceAfterNMoves;
+        PieceLimit = pieceLimit;
+    }
 }

@@ -1,6 +1,8 @@
 ﻿namespace DAL;
 
 using System.IO;
+using System.Text.Json;
+
 
 public static class FileHelper
 {
@@ -30,12 +32,10 @@ public static class FileHelper
         {
             if (Directory.GetFiles(BasePath, "*" + ConfigExtension).ToList().Count == 0)
             {
-                return false;
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
-
-    
 }

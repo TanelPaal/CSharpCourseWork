@@ -9,23 +9,35 @@ public static class GameController
 {
     private static IConfigRepository _configRepository = new ConfigJsonRepository();
     private static IGameRepository _gameRepository = new GameJsonRespository();
-
-
+    
     
     public static string MainLoop()
     {
-        var chosenConfigShortcut = ChooseConfiguration();
-        
-        if (!int.TryParse(chosenConfigShortcut, out var configNo))
-        {
-            return chosenConfigShortcut;
-        }
 
-        var chosenConfig = _configRepository.GetConfigurationByName(
-            _configRepository.GetConfigurationNames()[configNo]
-        );
-    
-        var gameInstance = new TicTacTwoBrain(chosenConfig);
+
+        GameConfiguration chosenConfig;
+        TicTacTwoBrain gameInstance;
+        if (ChooseSaveOrNew() == "NewGame")
+        {
+            string chosenConfigShortcut = ChooseConfiguration();
+            if (!int.TryParse(chosenConfigShortcut, out int configNo))
+            {
+                return chosenConfigShortcut;
+            }
+            
+            chosenConfig = _configRepository.GetConfigurationByName(
+                _configRepository.GetConfigurationNames()[configNo]
+            );
+            gameInstance = new TicTacTwoBrain(chosenConfig);
+        }
+        else
+        {
+            string saveName = ChooseSave();
+            Console.WriteLine(saveName);
+            GameState saveGame = _gameRepository.GetSaveByName(saveName);
+
+            gameInstance = new TicTacTwoBrain(saveGame);
+        }
         
         do
         { 
@@ -171,7 +183,6 @@ public static class GameController
     private static string ChooseConfiguration()
     {
         var configMenuItems = new List<MenuItem>();
-
         for (int i = 0; i < _configRepository.GetConfigurationNames().Count; i++)
         {
             var returnValue = i.ToString();
@@ -195,6 +206,63 @@ public static class GameController
             configMenuItems,
             isCustomMenu: true
         );
+        
+        
+
+        return configMenu.Run();
+    }
+    
+    private static string ChooseSave()
+    {
+        var configMenuItems = new List<MenuItem>();
+        for (int i = 0; i < _gameRepository.GetSaveNames().Count; i++)
+        {
+            var returnValue = _gameRepository.GetSaveNames()[i];
+            configMenuItems.Add(new MenuItem()
+            {
+                Title = _gameRepository.GetSaveNames()[i],
+                Shortcut = (i + 1).ToString(),
+                MenuItemAction = () => returnValue
+            });
+        }
+        
+
+        var configMenu = new Menu(EMenuLevel.Secondary, 
+            "Tic-Tac-Two - choose game save",
+            configMenuItems,
+            isCustomMenu: true
+        );
+        
+        
+
+        return configMenu.Run();
+    }
+    
+    private static string ChooseSaveOrNew()
+    {
+        var configMenuItems = new List<MenuItem>();
+        configMenuItems.Add(new MenuItem()
+        {
+            Title = "New game",
+            Shortcut = "N",
+            MenuItemAction = () => "NewGame",
+        });
+        
+        configMenuItems.Add(new MenuItem()
+        {
+            Title = "Load previous game",
+            Shortcut = "L",
+            MenuItemAction = () => "LoadGame",
+        });
+        
+
+        var configMenu = new Menu(EMenuLevel.Secondary, 
+            "Tic-Tac-Two - New or previo",
+            configMenuItems,
+            isCustomMenu: true
+        );
+        
+        
 
         return configMenu.Run();
     }

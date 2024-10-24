@@ -83,7 +83,7 @@ public class Menu
     public string Run()
     {
         
-        Console.Clear();
+        // Console.Clear();
         do
         {
             var menuItem = DisplayMenuGetUserChoice();

@@ -1,12 +1,8 @@
 ﻿namespace GameBrain;
+using System.Text.Json;
 
 public class TicTacTwoBrain
 {
-    private int _xTurnCount = 0;
-    private int _oTurnCount = 0;
-    private int _xPieceCount = 0; // Track the number of X pieces (not finished)
-    private int _oPieceCount = 0; // Track the number of O pieces (not finished)
-
     public  GameState _gameState;
 
     // public int[] GameArea => _gameArea;
@@ -34,9 +30,18 @@ public class TicTacTwoBrain
         );
     }
 
+    public TicTacTwoBrain(GameState gameState)
+    {
+        _gameState = gameState;
+    }
+
     public string GetGameStateJson()
     {
-        return _gameState.ToString();
+
+        var gameStateJson = new GameState2(_gameState).ToString();
+        
+        return gameStateJson!;
+        
     }
 
     public string GetGameConfigName()
@@ -74,11 +79,11 @@ public class TicTacTwoBrain
     {
         if (_gameState._nextMoveBy == EGamePiece.X)
         {
-            _xTurnCount++;
+            _gameState._xTurnCount++;
         }
         else
         {
-            _oTurnCount++;
+            _gameState._oTurnCount++;
         }
     }
     private void GetNextMoveBy()
@@ -97,7 +102,7 @@ public class TicTacTwoBrain
         }
         // Check if the move is allowed based on the turn counts
         if (_gameState.GameConfiguration.MovePieceAfterNMoves > 0 &&
-             (_xTurnCount + _oTurnCount) < _gameState.GameConfiguration.MovePieceAfterNMoves)
+             (_gameState._xTurnCount + _gameState._oTurnCount) < _gameState.GameConfiguration.MovePieceAfterNMoves)
         {
             Console.WriteLine("Not enough moves made to move the playable area.");
             return false;
@@ -334,8 +339,8 @@ public class TicTacTwoBrain
 
         _gameState.GameBoard = gameBoard;
         _gameState._nextMoveBy = EGamePiece.X;
-        _xTurnCount = 0;
-        _oTurnCount = 0;
+        _gameState._xTurnCount = 0;
+        _gameState._oTurnCount = 0;
         Console.WriteLine("Game has been reset.");
     }
 }
