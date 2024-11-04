@@ -88,28 +88,28 @@ public class Menu
         {
             var menuItem = DisplayMenuGetUserChoice();
             var menuReturnValue = "";
-        
+
             if (menuItem.MenuItemAction != null)
             {
                 menuReturnValue = menuItem.MenuItemAction!();
                 if (_isCustomMenu) return menuReturnValue;
             }
-            
+
             if (menuItem.Shortcut == _menuItemReturn.Shortcut)
             {
-                return menuItem.Shortcut;
+                return _menuItemReturn.Shortcut;
             }
-            
+
             if (menuItem.Shortcut == _menuItemExit.Shortcut || menuReturnValue == _menuItemExit.Shortcut)
             {
                 return _menuItemExit.Shortcut;
             }
-            
+
             if ((menuItem.Shortcut == _menuItemReturnMain.Shortcut || menuReturnValue == _menuItemReturnMain.Shortcut) && _menuLevel != EMenuLevel.Main)
             {
-                return menuItem.Shortcut;
+                return _menuItemReturnMain.Shortcut;
             }
-            
+
         } while (true);
     }
 

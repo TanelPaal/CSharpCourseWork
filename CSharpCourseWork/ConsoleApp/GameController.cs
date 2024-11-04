@@ -13,11 +13,78 @@ public static class GameController
     
     public static string MainLoop()
     {
-
-
         GameConfiguration chosenConfig;
         TicTacTwoBrain gameInstance;
-        if (ChooseSaveOrNew() == "NewGame")
+        
+        var saveOrNew = ChooseSaveOrNew();
+    
+        if (saveOrNew == "R" || saveOrNew == "E")
+        {
+            return saveOrNew;
+        }
+
+        if (saveOrNew == "NewGame")
+        {
+            string chosenConfigShortcut = ChooseConfiguration();
+            if (!int.TryParse(chosenConfigShortcut, out int configNo))
+            {
+                return chosenConfigShortcut;
+            }
+
+            chosenConfig = _configRepository.GetConfigurationByName(
+                _configRepository.GetConfigurationNames()[configNo]
+            );
+            gameInstance = new TicTacTwoBrain(chosenConfig);
+        }
+        else
+        {
+            string saveName = ChooseSave();
+            if (saveName == "R" || saveName == "E")
+            {
+                return saveName;
+            }
+            Console.WriteLine(saveName);
+            GameState saveGame = _gameRepository.GetSaveByName(saveName);
+
+            gameInstance = new TicTacTwoBrain(saveGame);
+        }
+
+        do
+        {
+            ConsoleUI.Visualizer.DrawBoard(gameInstance);
+            var input = GetUserInput();
+
+            if (input.Equals("save", StringComparison.InvariantCultureIgnoreCase))
+            {
+                _gameRepository.SaveGame(
+                    gameInstance.GetGameStateJson(),
+                    gameInstance.GetGameConfigName()
+                );
+                break;
+            }
+
+            var result = RegexValidate(input);
+            if (result.success)
+            {
+                ProcessInput(result, gameInstance);
+                if (IsGameOver(gameInstance))
+                {
+                    ConsoleUI.Visualizer.DrawBoard(gameInstance);
+                    Console.WriteLine("Game Over!");
+                    break;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid input, you fucking moron. I hope you don't do the same mistake twice!");
+            }
+
+        } while (true);
+
+        return "Game Over";
+        
+        // Old code with wrong Return and Exit handling.
+        /*if (ChooseSaveOrNew() == "NewGame")
         {
             string chosenConfigShortcut = ChooseConfiguration();
             if (!int.TryParse(chosenConfigShortcut, out int configNo))
@@ -71,7 +138,7 @@ public static class GameController
 
         } while (true);
 
-        return "Game Over";
+        return "Game Over";*/
     }
     
     private static bool IsGameOver(TicTacTwoBrain gameInstance)

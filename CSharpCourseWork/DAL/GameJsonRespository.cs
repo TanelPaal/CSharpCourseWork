@@ -54,15 +54,8 @@ public class GameJsonRespository: IGameRepository
         gameStateTemp = GameStatedto.ToGameState();
 
         Console.WriteLine(gameStateTemp.ToString()); // For debugging
-
-
-
-
-
         
         //Console.WriteLine(gameSave!["_nextMoveBy"].GetInt32());
-        
-        
 
         var gameBoard2 = new EGamePiece[(int)2][];
         for (var x = 0; x < gameBoard2.Length; x++)
@@ -81,7 +74,6 @@ public class GameJsonRespository: IGameRepository
         );
         return gameStateTemp;
     }
-    
     
     public bool DoesRootFolderContainSaves()
     {
