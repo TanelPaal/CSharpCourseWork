@@ -83,33 +83,23 @@ public class Menu
     public string Run()
     {
         
-        // Console.Clear();
         do
         {
             var menuItem = DisplayMenuGetUserChoice();
             var menuReturnValue = "";
 
-            if (menuItem.MenuItemAction != null)
-            {
-                menuReturnValue = menuItem.MenuItemAction!();
-                if (_isCustomMenu) return menuReturnValue;
-            }
+            if (menuItem.MenuItemAction != null) menuReturnValue = menuItem.MenuItemAction();
 
-            if (menuItem.Shortcut == _menuItemReturn.Shortcut)
-            {
-                return _menuItemReturn.Shortcut;
-            }
+            if (menuItem.Shortcut == _menuItemReturn.Shortcut) return menuItem.Shortcut;
 
             if (menuItem.Shortcut == _menuItemExit.Shortcut || menuReturnValue == _menuItemExit.Shortcut)
-            {
                 return _menuItemExit.Shortcut;
-            }
 
-            if ((menuItem.Shortcut == _menuItemReturnMain.Shortcut || menuReturnValue == _menuItemReturnMain.Shortcut) && _menuLevel != EMenuLevel.Main)
-            {
-                return _menuItemReturnMain.Shortcut;
-            }
+            if ((menuItem.Shortcut == _menuItemReturnMain.Shortcut ||
+                 menuReturnValue == _menuItemReturnMain.Shortcut) &&
+                _menuLevel != EMenuLevel.Main) return _menuItemReturnMain.Shortcut;
 
+            if (!string.IsNullOrWhiteSpace(menuReturnValue)) return menuReturnValue;
         } while (true);
     }
 

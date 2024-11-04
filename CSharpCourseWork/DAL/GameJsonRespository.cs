@@ -30,49 +30,46 @@ public class GameJsonRespository: IGameRepository
     public GameState GetSaveByName(string gameSaveName)
     {
         var filePath = FileHelper.BasePath + gameSaveName + FileHelper.GameExtension;
-        
+
         var configString = File.ReadAllText(filePath);
 
-        // Deserialize into the intermediate DTO with default values;
-        // var gameSaveDto = JsonSerializer.Deserialize<GameStateDTO>(configString, new JsonSerializerOptions { IncludeFields = true, PropertyNameCaseInsensitive = true });
-
-        // Manually map the int[][] GameBoard to EGamePiece[][]
-
-
-
-        var options = new JsonSerializerOptions 
-        { 
+        var options = new JsonSerializerOptions
+        {
             IncludeFields = true,
             PropertyNameCaseInsensitive = true,
         };
-        GameStateDTO GameStatedto;
-        GameState gameStateTemp;
 
-        Console.WriteLine("JSON String: " + configString);
-        var test = JsonSerializer.Deserialize<Dictionary<string, object>>(configString!, options)!;
-        GameStatedto = new GameStateDTO(test);
-        gameStateTemp = GameStatedto.ToGameState();
+        // Console.WriteLine("JSON String: " + configString);
+        var gameData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(configString!)!;
 
-        Console.WriteLine(gameStateTemp.ToString()); // For debugging
-        
-        //Console.WriteLine(gameSave!["_nextMoveBy"].GetInt32());
+        var gameConfigDict = gameData["GameConfiguration"].Deserialize<Dictionary<string, JsonElement>>(options)!;
+        var tempGameConfig = new GameConfiguration
+            {
+                Name = gameConfigDict["Name"].GetString(),
+                BoardSizeWidth = gameConfigDict["BoardSizeWidth"].GetInt32(),
+                BoardSizeHeight = gameConfigDict["BoardSizeHeight"].GetInt32(),
+                MovePieceAfterNMoves = gameConfigDict["MovePieceAfterNMoves"].GetInt32(),
+                PieceLimit = gameConfigDict["PieceLimit"].GetInt32()
+            };
+        var gameArea = JsonSerializer.Deserialize<int[]>(((JsonElement)gameData["_gameArea"]).GetRawText());
 
-        var gameBoard2 = new EGamePiece[(int)2][];
-        for (var x = 0; x < gameBoard2.Length; x++)
-        {
-            gameBoard2[x] = new EGamePiece[(int)3];
-        }
-        int[] _gameArea = { 1, 2 };
-
-        var gameConfig2 = new GameConfiguration();
-
-        
-        GameState gameStateSave = new GameState(
-            gameBoard2,
-            gameConfig2,
-            _gameArea
+        var gameState = new GameState(
+            // Extract GameBoard and cast to EGamePiece[][]
+            (gameData["GameBoard"]).Deserialize<EGamePiece[][]>(),
+            // Extract GameConfiguration and cast to GameConfiguration object
+            tempGameConfig,
+            // Extract _gameArea and cast to int[]
+            gameArea,
+            // Extract _nextMoveBy and cast to EGamePiece
+            (EGamePiece)gameData["_nextMoveBy"].GetInt32(),
+            // Extract _xTurnCount and cast to int
+            gameData["_xTurnCount"].GetInt32(),
+            // Extract _oTurnCount and cast to int
+            gameData["_oTurnCount"].GetInt32()
         );
-        return gameStateTemp;
+
+
+        return gameState;
     }
     
     public bool DoesRootFolderContainSaves()

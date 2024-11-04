@@ -1,3 +1,4 @@
 ﻿using ConsoleApp;
 // menu config is in Menus.cs
-Menus.MainMenu.Run();
+var menus = new Menus();
+menus.MainMenu.Run();

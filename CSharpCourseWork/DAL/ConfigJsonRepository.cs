@@ -1,19 +1,18 @@
-﻿using GameBrain;
+﻿namespace DAL;
 
-namespace DAL;
-
+using GameBrain;
 using System.Text.Json;
 using System.IO;
 
 public class ConfigJsonRepository : IConfigRepository
 {
     private static IGameRepository gameJsonRespository = new GameJsonRespository();
+    
     public List<string> GetConfigurationNames()
     {
         if (FileHelper.RootFolderGenerator() || FileHelper.DoesRootFolderContainConfigs())
         {
             //generate directory
-
             GenerateDefaultConfiguration();
             //generate default from default config if none exists
 
@@ -34,9 +33,8 @@ public class ConfigJsonRepository : IConfigRepository
     {
         var filePath = FileHelper.BasePath + name + FileHelper.ConfigExtension;
         var configString = File.ReadAllText(filePath);
-        return JsonSerializer.Deserialize<GameConfiguration>(configString);
+        return JsonSerializer.Deserialize<GameConfiguration>(configString)!;
     }
-
 
     private void GenerateDefaultConfiguration()
     {
@@ -51,8 +49,6 @@ public class ConfigJsonRepository : IConfigRepository
 
             gameJsonRespository.SaveConfig(jsonGameOption, configName);
         }
-
-
     }
 
     public string CreateGameConfiguration()
@@ -89,8 +85,7 @@ public class ConfigJsonRepository : IConfigRepository
         {
             configName = input;
         }
-
-
+        
         GameConfiguration gameConfig = new GameConfiguration()
         {
             Name = name,

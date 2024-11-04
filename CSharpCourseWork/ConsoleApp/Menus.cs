@@ -2,7 +2,7 @@
 
 namespace ConsoleApp;
 
-public static class Menus
+public class Menus
 {
 
     public static readonly Menu DeepMenu = new Menu(
@@ -35,7 +35,7 @@ public static class Menus
             
             ]);
     
-    public static Menu MainMenu = new Menu(
+    public Menu MainMenu = new Menu(
         EMenuLevel.Main,
         "TIC-TAC-TWO", [
             new MenuItem()
@@ -48,9 +48,16 @@ public static class Menus
             {
                 Shortcut = "N",
                 Title = "New Game",
-                MenuItemAction = GameController.MainLoop
+                MenuItemAction = GameController.MainLoop  // Remove () at the end of MainLoop for it to work.
+            },
+            new MenuItem()
+            {
+                Shortcut = "L",
+                Title = "Load game",
+                MenuItemAction = SavedGamesLoader.MainLoop
             }
         ]);
+
     
     private static string DummyMethod()
     {

@@ -7,28 +7,7 @@ public class TicTacTwoBrain
 
     // public int[] GameArea => _gameArea;
     // public int[]  _gameArea { get; set; }
-
-    public TicTacTwoBrain(GameConfiguration gameConfiguration)
-    {
-        var gameBoard = new EGamePiece[gameConfiguration.BoardSizeWidth][];
-        for (var x = 0; x < gameBoard.Length; x++)
-        {
-            gameBoard[x] = new EGamePiece[gameConfiguration.BoardSizeHeight];
-        }
-
-        // Calculate the center position
-        int centerX = (int)Math.Floor((double)gameConfiguration.BoardSizeWidth / 2);
-        int centerY = (int)Math.Floor((double)gameConfiguration.BoardSizeHeight / 2);
-        int[] _gameArea = { centerX, centerY };
-        Console.WriteLine($"{centerX}, {centerY}");
-
-
-        _gameState = new GameState(
-            gameBoard,
-            gameConfiguration,
-            _gameArea
-        );
-    }
+    
 
     public TicTacTwoBrain(GameState gameState)
     {
@@ -38,7 +17,7 @@ public class TicTacTwoBrain
     public string GetGameStateJson()
     {
 
-        var gameStateJson = new GameState2(_gameState).ToString();
+        var gameStateJson = _gameState.ToString();
         
         return gameStateJson!;
         

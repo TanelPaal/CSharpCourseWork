@@ -9,46 +9,11 @@ public static class GameController
 {
     private static IConfigRepository _configRepository = new ConfigJsonRepository();
     private static IGameRepository _gameRepository = new GameJsonRespository();
-    
-    
-    public static string MainLoop()
+
+
+    public static string PlayGame(GameState saveGame)
     {
-        GameConfiguration chosenConfig;
-        TicTacTwoBrain gameInstance;
-        
-        var saveOrNew = ChooseSaveOrNew();
-    
-        if (saveOrNew == "R" || saveOrNew == "E")
-        {
-            return saveOrNew;
-        }
-
-        if (saveOrNew == "NewGame")
-        {
-            string chosenConfigShortcut = ChooseConfiguration();
-            if (!int.TryParse(chosenConfigShortcut, out int configNo))
-            {
-                return chosenConfigShortcut;
-            }
-
-            chosenConfig = _configRepository.GetConfigurationByName(
-                _configRepository.GetConfigurationNames()[configNo]
-            );
-            gameInstance = new TicTacTwoBrain(chosenConfig);
-        }
-        else
-        {
-            string saveName = ChooseSave();
-            if (saveName == "R" || saveName == "E")
-            {
-                return saveName;
-            }
-            Console.WriteLine(saveName);
-            GameState saveGame = _gameRepository.GetSaveByName(saveName);
-
-            gameInstance = new TicTacTwoBrain(saveGame);
-        }
-
+        var gameInstance = new TicTacTwoBrain(saveGame);
         do
         {
             ConsoleUI.Visualizer.DrawBoard(gameInstance);
@@ -82,63 +47,72 @@ public static class GameController
         } while (true);
 
         return "Game Over";
+    }
+    
+    
+    public static string MainLoop()
+    {
+        GameState saveGame;
         
-        // Old code with wrong Return and Exit handling.
-        /*if (ChooseSaveOrNew() == "NewGame")
+        var saveOrNew = ChooseSaveOrNew();
+    
+        if (saveOrNew == "R" || saveOrNew == "E")
         {
+            return saveOrNew;
+        }
+
+        if (saveOrNew == "NewGame")
+        {
+            GameConfiguration chosenConfig;
+
             string chosenConfigShortcut = ChooseConfiguration();
             if (!int.TryParse(chosenConfigShortcut, out int configNo))
             {
                 return chosenConfigShortcut;
             }
-            
+
             chosenConfig = _configRepository.GetConfigurationByName(
                 _configRepository.GetConfigurationNames()[configNo]
             );
-            gameInstance = new TicTacTwoBrain(chosenConfig);
+
+
+            var gameBoard = new EGamePiece[chosenConfig.BoardSizeWidth][];
+            for (var x = 0; x < gameBoard.Length; x++)
+            {
+                gameBoard[x] = new EGamePiece[chosenConfig.BoardSizeHeight];
+            }
+
+            // Calculate the center position
+            int centerX = (int)Math.Floor((double)chosenConfig.BoardSizeWidth / 2);
+            int centerY = (int)Math.Floor((double)chosenConfig.BoardSizeHeight / 2);
+            int[] _gameArea = { centerX, centerY };
+            Console.WriteLine($"{centerX}, {centerY}");
+
+
+            saveGame = new GameState(
+                gameBoard,
+                chosenConfig,
+                _gameArea,
+                EGamePiece.X,
+                0,
+                0
+            );
+
         }
         else
         {
             string saveName = ChooseSave();
+            if (saveName == "R" || saveName == "E")
+            {
+                return saveName;
+            }
             Console.WriteLine(saveName);
-            GameState saveGame = _gameRepository.GetSaveByName(saveName);
+            saveGame = _gameRepository.GetSaveByName(saveName);
 
-            gameInstance = new TicTacTwoBrain(saveGame);
         }
-        
-        do
-        { 
-            ConsoleUI.Visualizer.DrawBoard(gameInstance);
-            var input = GetUserInput();
 
-            if (input.Equals("save", StringComparison.InvariantCultureIgnoreCase))
-            {
-                _gameRepository.SaveGame(
-                    gameInstance.GetGameStateJson(),
-                    gameInstance.GetGameConfigName()
-                );
-                break;
-            }
-
-            var result = RegexValidate(input);
-            if (result.success)
-            {
-                ProcessInput(result, gameInstance);
-                if (IsGameOver(gameInstance))
-                {
-                    ConsoleUI.Visualizer.DrawBoard(gameInstance);
-                    Console.WriteLine("Game Over!");
-                    break;
-                }
-            }
-            else
-            {
-                Console.WriteLine("Invalid input, you fucking moron. I hope you don't do the same mistake twice!");
-            }
-
-        } while (true);
-
-        return "Game Over";*/
+        PlayGame(saveGame);
+        return "";
     }
     
     private static bool IsGameOver(TicTacTwoBrain gameInstance)
@@ -152,7 +126,7 @@ public static class GameController
         Console.WriteLine("<1 x,y> to place a piece,");
         Console.WriteLine("<2 x,y> to move the playable area,");
         Console.WriteLine("<3 newX,newY oldX,oldY> to move a placed piece:");
-        Console.WriteLine("E to exit the game:");
+        Console.WriteLine("E to exit the game or type 'save' to save game:");
         return Console.ReadLine()!;
     }
 
@@ -324,7 +298,7 @@ public static class GameController
         
 
         var configMenu = new Menu(EMenuLevel.Secondary, 
-            "Tic-Tac-Two - New or previo",
+            "Tic-Tac-Two - New or previous",
             configMenuItems,
             isCustomMenu: true
         );
