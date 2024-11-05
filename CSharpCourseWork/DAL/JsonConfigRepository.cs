@@ -4,10 +4,19 @@ using GameBrain;
 using System.Text.Json;
 using System.IO;
 
-public class ConfigJsonRepository : IConfigRepository
+public class JsonConfigRepository : IConfigRepository
 {
-    private static IGameRepository gameJsonRespository = new GameJsonRespository();
-    
+    private static IGameRepository gameJsonRespository = new JsonGameRespository();
+
+    public void SaveConfig(string jsonStateString, string gameConfigName)
+    {
+        File.WriteAllText(FileHelper.BasePath +
+                          gameConfigName + "_" +
+                          DateTime.Now.ToString("yyyy-MM-dd_HH-mm") +
+                          FileHelper.ConfigExtension, jsonStateString);
+
+
+    }
     public List<string> GetConfigurationNames()
     {
         if (FileHelper.RootFolderGenerator() || FileHelper.DoesRootFolderContainConfigs())
@@ -47,7 +56,7 @@ public class ConfigJsonRepository : IConfigRepository
             
             var jsonGameOption = JsonSerializer.Serialize(gameOption, new JsonSerializerOptions { WriteIndented = true, IncludeFields = true});
 
-            gameJsonRespository.SaveConfig(jsonGameOption, configName);
+            SaveConfig(jsonGameOption, configName);
         }
     }
 
@@ -96,7 +105,7 @@ public class ConfigJsonRepository : IConfigRepository
 
         var jsonGameOption = JsonSerializer.Serialize(gameConfig, new JsonSerializerOptions { WriteIndented = true });
 
-        gameJsonRespository.SaveConfig(jsonGameOption, configName);
+        SaveConfig(jsonGameOption, configName);
         return "Created";
     }
     

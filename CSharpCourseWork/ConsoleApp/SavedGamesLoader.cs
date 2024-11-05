@@ -5,7 +5,7 @@ namespace ConsoleApp;
 
 public static class SavedGamesLoader
 {
-    static IGameRepository gameRespository = new GameJsonRespository();
+    static IGameRepository gameRespository = new JsonGameRespository();
 
     static string ChooseGame()
     {

@@ -14,13 +14,13 @@ public class TicTacTwoBrain
         _gameState = gameState;
     }
 
-    public string GetGameStateJson()
+    public GameState GetGameState()
     {
 
         var gameStateJson = _gameState.ToString();
-        
-        return gameStateJson!;
-        
+
+        return _gameState;
+
     }
 
     public string GetGameConfigName()

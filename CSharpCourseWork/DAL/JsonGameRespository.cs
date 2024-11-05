@@ -4,10 +4,14 @@ namespace DAL;
 
 using System.Text.Json;
 using System.Collections.Generic;
-public class GameJsonRespository: IGameRepository
+
+public class JsonGameRespository: IGameRepository
 {
-    public void SaveGame(string jsonStateString, string gameSaveName)
+    public void SaveGame(GameState gameState, string gameSaveName)
     {
+
+        string jsonStateString = gameState.ToString();
+        
         File.WriteAllText(FileHelper.BasePath +
                           gameSaveName + "_" +
                           DateTime.Now.ToString("yyyy-MM-dd_HH-mm") +
@@ -16,15 +20,7 @@ public class GameJsonRespository: IGameRepository
 
     }
     
-    public void SaveConfig(string jsonStateString, string gameConfigName)
-    {
-        File.WriteAllText(FileHelper.BasePath +
-                          gameConfigName + "_" +
-                          DateTime.Now.ToString("yyyy-MM-dd_HH-mm") +
-                          FileHelper.ConfigExtension, jsonStateString);
 
-
-    }
 
 
     public GameState GetSaveByName(string gameSaveName)

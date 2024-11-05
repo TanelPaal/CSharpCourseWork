@@ -7,8 +7,8 @@ namespace ConsoleApp;
 
 public static class GameController
 {
-    private static IConfigRepository _configRepository = new ConfigJsonRepository();
-    private static IGameRepository _gameRepository = new GameJsonRespository();
+    private static IConfigRepository _configRepository = new JsonConfigRepository();
+    private static IGameRepository _gameRepository = new JsonGameRespository();
 
 
     public static string PlayGame(GameState saveGame)
@@ -22,7 +22,7 @@ public static class GameController
             if (input.Equals("save", StringComparison.InvariantCultureIgnoreCase))
             {
                 _gameRepository.SaveGame(
-                    gameInstance.GetGameStateJson(),
+                    gameInstance.GetGameState(),
                     gameInstance.GetGameConfigName()
                 );
                 break;

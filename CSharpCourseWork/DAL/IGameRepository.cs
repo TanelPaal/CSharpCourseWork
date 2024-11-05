@@ -2,11 +2,8 @@
 using GameBrain;
 public interface IGameRepository
 {
-    public void SaveGame(string jsonStateString, string gameSaveName);
-    public void SaveConfig(string jsonStateString, string gameConfigName);
-    
+    public void SaveGame(GameState gameState, string gameSaveName);
     public GameState GetSaveByName(string gameSaveName);
-    public bool DoesRootFolderContainSaves();
     public List<string> GetSaveNames();
 
 
