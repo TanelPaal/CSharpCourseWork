@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using DAL;
+using DAL.DB;
 using GameBrain;
 using MenuSystem;
 
@@ -7,8 +8,14 @@ namespace ConsoleApp;
 
 public static class GameController
 {
-    private static IConfigRepository _configRepository = new JsonConfigRepository();
-    private static IGameRepository _gameRepository = new JsonGameRespository();
+    private static readonly AppDbContextFactory ContextFactory = new();
+    private static IConfigRepository _configRepository = new DbConfigRepository(contextFactory: ContextFactory);
+    private static IGameRepository _gameRepository = new DbGameRepository(contextFactory: ContextFactory);
+
+    // DB <=> JSON
+
+    // private static IConfigRepository _configRepository = new JsonConfigRepository();
+    // private static IGameRepository _gameRepository = new JsonGameRespository();
 
 
     public static string PlayGame(GameState saveGame)

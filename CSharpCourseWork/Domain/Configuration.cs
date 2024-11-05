@@ -4,7 +4,8 @@ namespace Domain;
 
 public class Configuration
 {
-    public int Id { get; init; }
+    public int Id { get; set; } // Primary key
+    
     [MaxLength(128)] public string Name { get; set; } = default!;
 
     [Required] public int BoardSizeWidth { get; set; }

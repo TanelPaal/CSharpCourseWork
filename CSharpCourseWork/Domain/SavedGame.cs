@@ -3,8 +3,9 @@ namespace Domain;
 
 public class SavedGame
 {
-    // Primary Key
-    public int Id { get; set; }
+    
+    public int Id { get; set; } // Primary Key
+    
     [MaxLength(128)] public string Name { get; set; } = default!;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -14,7 +15,7 @@ public class SavedGame
 
     // Expose the Foreign Key
     public int ConfigurationId { get; set; }
-    public Configuration? Configuration { get; set; }
+    //public Configuration? Configuration { get; set; }
 
 
 

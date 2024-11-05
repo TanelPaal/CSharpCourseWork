@@ -14,16 +14,74 @@ public class DbGameRepository : IGameRepository
         _contextFactory = contextFactory;
     }
 
-    public void SaveGame(GameState gameState, string gameSaveName)
+    public void SaveGame(GameState gameState, string gameSaveName = null!)
     {
         using var context = _contextFactory.CreateDbContext();
 
-        var gameInDb = context.SavedGames.FirstOrDefault(g => g.Id == gameState.Id);
-
-        if (gameInDb == null)
+        // Check if a saved game with the same name exists
+        var existingSavedGame = context.SavedGames.FirstOrDefault(g => g.Name == gameSaveName);
+    
+        if (existingSavedGame != null)
         {
-            context.Attach(gameState.GameConfiguration);
-            context.Add(gameState);
+            // Delete the existing saved game
+            context.SavedGames.Remove(existingSavedGame);
+        }
+
+        // Create a new saved game
+        SavedGame dtoSavedGame = new SavedGame
+        {
+            Id = gameState.Id,
+            Name = gameSaveName,
+            State = gameState.ToString(),
+            ConfigurationId = gameState.GameConfiguration.Id,
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow
+        };
+
+        context.SavedGames.Add(dtoSavedGame);
+        context.SaveChanges();
+
+        /*if (gameInDb == null)
+        {
+            if (string.IsNullOrEmpty(gameSaveName))
+            {
+                gameSaveName = $"{gameState.GameConfiguration.Name}_{DateTime.UtcNow:yyyyMMddHHmmss}";
+            }
+            
+            SavedGame dtoSavedGame = new SavedGame
+            {
+                Id = gameState.Id,
+                Name = gameSaveName,
+                State = gameState.ToString(),
+                ConfigurationId = gameState.GameConfiguration.Id
+            };
+            Console.WriteLine(gameState.GameConfiguration.Id);
+            Console.WriteLine(gameState.Id);
+            Console.WriteLine(dtoSavedGame.ConfigurationId);
+            
+            GameConfiguration DTOConfig = gameState.GameConfiguration;
+            Configuration tempConfiguration = new Configuration(
+                DTOConfig.Name,
+                DTOConfig.BoardSizeWidth,
+                DTOConfig.BoardSizeHeight,
+                DTOConfig.MovePieceAfterNMoves, 
+                DTOConfig.PieceLimit
+            );
+            tempConfiguration.Id = gameState.GameConfiguration.Id;
+
+            var configExists = context.GameConfigurations.FirstOrDefault(g => g.Id == gameState.GameConfiguration.Id)!;
+            Console.WriteLine(configExists);
+
+            if (configExists == null)
+            {
+
+                context.GameConfigurations.Add(tempConfiguration);
+                context.SaveChanges();
+
+                dtoSavedGame.ConfigurationId = tempConfiguration.Id; // Update the foreign key
+            }
+
+            context.SavedGames.Add(dtoSavedGame);
         }
         else
         {
@@ -31,15 +89,52 @@ public class DbGameRepository : IGameRepository
             gameInDb.ModifiedAt = DateTime.UtcNow;
         }
 
-        context.SaveChanges();
+        context.SaveChanges();*/
     }
 
     public GameState GetSaveByName(string gameSaveName)
     {
         using var context = _contextFactory.CreateDbContext();
         var savedGame = context.SavedGames.FirstOrDefault(g => g.Name == gameSaveName)!;
+        
 
-        return JsonSerializer.Deserialize<GameState>(savedGame.State)!;
+        var gameData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(savedGame.State!)!;
+        
+        var gameConfiguration = context.GameConfigurations.FirstOrDefault(g => g.Id == savedGame.ConfigurationId)!;
+
+        
+        GameConfiguration DTOConfig = new GameConfiguration(
+            gameConfiguration.Name,
+            gameConfiguration.BoardSizeWidth,
+            gameConfiguration.BoardSizeHeight,
+            gameConfiguration.MovePieceAfterNMoves, 
+            gameConfiguration.PieceLimit
+        );
+        DTOConfig.Id = gameConfiguration.Id;
+        
+        var gameArea = JsonSerializer.Deserialize<int[]>(((JsonElement)gameData["_gameArea"]).GetRawText());
+
+        
+        var gameState = new GameState(
+             // Extract GameBoard and cast to EGamePiece[][]
+            (gameData["GameBoard"]).Deserialize<EGamePiece[][]>(),
+            // Extract GameConfiguration and cast to GameConfiguration object
+            DTOConfig,
+            // Extract _gameArea and cast to int[]
+            gameArea,
+            // Extract _nextMoveBy and cast to EGamePiece
+            (EGamePiece)gameData["_nextMoveBy"].GetInt32(),
+            // Extract _xTurnCount and cast to int
+            gameData["_xTurnCount"].GetInt32(),
+            // Extract _oTurnCount and cast to int
+            gameData["_oTurnCount"].GetInt32()
+        );
+        Console.WriteLine(gameState.Id);
+        gameState.Id = gameData["Id"].GetInt32();
+        Console.WriteLine(gameState.Id);
+        Console.WriteLine(gameData["Id"].GetInt32());
+        
+        return gameState;
 
     }
 

@@ -26,7 +26,18 @@ public class DbConfigRepository : IConfigRepository
     {
         using var context = _contextFactory.CreateDbContext();
         var config = context.GameConfigurations.FirstOrDefault(config => config.Name == name)!;
-        return config;
+
+        GameConfiguration gameConfig = new GameConfiguration(
+            config.Name,
+            config.BoardSizeWidth,
+            config.BoardSizeHeight,
+            config.MovePieceAfterNMoves,
+            config.PieceLimit
+        );
+        gameConfig.Id = config.Id;
+        
+        
+        return gameConfig;
     }
 
     private void CreateInitialConfig()
@@ -37,9 +48,19 @@ public class DbConfigRepository : IConfigRepository
         var hardcodedRepo = new ConfigRepository();
         var optionNames = hardcodedRepo.GetConfigurationNames();
 
-        foreach (var option in optionNames.Select(optionName => hardcodedRepo.GetConfigurationByName(optionName)))
+        foreach (var config in optionNames.Select(optionName => hardcodedRepo.GetConfigurationByName(optionName)))
         {
-            context.GameConfigurations.Add(option);
+
+            Configuration gameDBConfig = new Configuration(
+                config.Name,
+                config.BoardSizeWidth,
+                config.BoardSizeHeight,
+                config.MovePieceAfterNMoves,
+                config.PieceLimit
+            );
+            gameDBConfig.Id = config.Id;
+            
+            context.GameConfigurations.Add(gameDBConfig);
         }
 
         context.SaveChanges();
@@ -61,6 +82,10 @@ public class DbConfigRepository : IConfigRepository
         Console.WriteLine("Enter the number of moves after which a piece can be moved:");
         string? movePieceAfterNMovesInput = Console.ReadLine();
         int movePieceAfterNMoves = string.IsNullOrWhiteSpace(movePieceAfterNMovesInput) ? 4 : int.Parse(movePieceAfterNMovesInput);
+        
+        Console.WriteLine("Enter the number of moves after which a piece can be moved:");
+        string? pieceLimitInput = Console.ReadLine();
+        int pieceLimit = string.IsNullOrWhiteSpace(pieceLimitInput) ? 4 : int.Parse(pieceLimitInput);
 
         Random random = new Random();
         string defaultName = boardWidth + "x" + boardHeight + random.Next(1, 9999);
@@ -75,13 +100,14 @@ public class DbConfigRepository : IConfigRepository
         }
 
 
-        GameConfiguration gameConfig = new GameConfiguration()
-        {
-            Name = configName,
-            BoardSizeWidth = boardWidth,
-            BoardSizeHeight = boardHeight,
-            MovePieceAfterNMoves = movePieceAfterNMoves,
-        };
+        Configuration gameConfig = new Configuration(
+        
+            configName,
+            boardWidth,
+            boardHeight,
+            movePieceAfterNMoves,
+            pieceLimit
+        );
 
 
         using var context = _contextFactory.CreateDbContext();

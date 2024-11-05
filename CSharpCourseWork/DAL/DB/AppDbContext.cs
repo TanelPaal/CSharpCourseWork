@@ -6,7 +6,7 @@ namespace DAL.DB;
 
 public class AppDbContext : DbContext
 {
-    public DbSet<GameConfiguration> GameConfigurations { get; set; } = default!;
+    public DbSet<Configuration> GameConfigurations { get; set; } = default!;
     public DbSet<SavedGame> SavedGames { get; set; } = default!;
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
