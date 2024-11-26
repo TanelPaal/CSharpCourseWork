@@ -16,8 +16,7 @@ public static class GameController
 
     // private static IConfigRepository _configRepository = new JsonConfigRepository();
     // private static IGameRepository _gameRepository = new JsonGameRespository();
-
-
+    
     public static string PlayGame(GameState saveGame)
     {
         var gameInstance = new TicTacTwoBrain(saveGame);
@@ -52,7 +51,6 @@ public static class GameController
             }
 
         } while (true);
-
         return "Game Over";
     }
     
@@ -81,8 +79,7 @@ public static class GameController
             chosenConfig = _configRepository.GetConfigurationByName(
                 _configRepository.GetConfigurationNames()[configNo]
             );
-
-
+            
             var gameBoard = new EGamePiece[chosenConfig.BoardSizeWidth][];
             for (var x = 0; x < gameBoard.Length; x++)
             {
@@ -94,7 +91,6 @@ public static class GameController
             int centerY = (int)Math.Floor((double)chosenConfig.BoardSizeHeight / 2);
             int[] _gameArea = { centerX, centerY };
             Console.WriteLine($"{centerX}, {centerY}");
-
 
             saveGame = new GameState(
                 gameBoard,
@@ -140,7 +136,6 @@ public static class GameController
     private static void ProcessInput((int[,] output, bool success, bool hasSecondCoords) result,
         TicTacTwoBrain gameInstance)
     {
-        
         if (!result.success)
         {
             Console.WriteLine("Invalid input.");
@@ -180,7 +175,6 @@ public static class GameController
             int secondY = result.output[2, 1];
             gameInstance.MoveExistingPiece(firstX, firstY, secondX, secondY);
         }
-        
     }
     
     private static (int[,] output, bool success, bool hasSecondCoords) RegexValidate(string input)
@@ -189,8 +183,7 @@ public static class GameController
         {
             return (new int[1, 1] { { 'E' } }, true, false);
         }
-
-
+        
         string pattern = @"^(1|2|3)\s+(\d{1,2}),(\d{1,2})(?:\s+(\d{1,2}),(\d{1,2}))?$";
 
         // Create a Regex object
@@ -254,8 +247,6 @@ public static class GameController
             configMenuItems,
             isCustomMenu: true
         );
-        
-        
 
         return configMenu.Run();
     }
@@ -273,15 +264,12 @@ public static class GameController
                 MenuItemAction = () => returnValue
             });
         }
-        
 
         var configMenu = new Menu(EMenuLevel.Secondary, 
             "Tic-Tac-Two - choose game save",
             configMenuItems,
             isCustomMenu: true
         );
-        
-        
 
         return configMenu.Run();
     }
@@ -303,15 +291,12 @@ public static class GameController
             MenuItemAction = () => "LoadGame",
         });
         
-
         var configMenu = new Menu(EMenuLevel.Secondary, 
             "Tic-Tac-Two - New or previous",
             configMenuItems,
             isCustomMenu: true
         );
         
-        
-
         return configMenu.Run();
     }
 }

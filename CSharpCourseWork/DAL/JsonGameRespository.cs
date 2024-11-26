@@ -16,13 +16,8 @@ public class JsonGameRespository: IGameRepository
                           gameSaveName + "_" +
                           DateTime.Now.ToString("yyyy-MM-dd_HH-mm") +
                           FileHelper.GameExtension, jsonStateString);
-
-
     }
     
-
-
-
     public GameState GetSaveByName(string gameSaveName)
     {
         var filePath = FileHelper.BasePath + gameSaveName + FileHelper.GameExtension;
@@ -87,7 +82,6 @@ public class JsonGameRespository: IGameRepository
         {
             return [];
         }
-        
 
         return Directory
             .GetFiles(FileHelper.BasePath, "*" + FileHelper.GameExtension)

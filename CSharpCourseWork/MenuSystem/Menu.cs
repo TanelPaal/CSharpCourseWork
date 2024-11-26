@@ -51,7 +51,6 @@ public class Menu
         _isCustomMenu = isCustomMenu;
         _menuLevel = menuLevel;
         
-        
         if (_menuLevel != EMenuLevel.Main)
         {
             MenuItems.Add(_menuItemReturn);
@@ -82,7 +81,6 @@ public class Menu
 
     public string Run()
     {
-        
         do
         {
             var menuItem = DisplayMenuGetUserChoice();
@@ -110,7 +108,6 @@ public class Menu
         do
         {
             DrawMenu();
-            
             userInput = Console.ReadLine();
             
             if (string.IsNullOrWhiteSpace(userInput))
@@ -143,9 +140,7 @@ public class Menu
         {
             Console.WriteLine(t);
         }
-        
         Console.WriteLine();
-
         Console.Write(">");
     }
 }

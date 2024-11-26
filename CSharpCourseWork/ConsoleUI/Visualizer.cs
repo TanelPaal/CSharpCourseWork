@@ -46,8 +46,7 @@ public static class Visualizer
 
             Console.WriteLine();
         }
-
-
+        
         void SetBackgroundColor(int x, int y)
         {
             if (gameInstance.IsInsidePlayableArea(x, y))
@@ -55,8 +54,7 @@ public static class Visualizer
                 Console.BackgroundColor = ConsoleColor.DarkBlue;
         }
     }
-
-
+    
     private static string DrawGamePiece(EGamePiece piece)
     {
         switch (piece)
@@ -68,7 +66,6 @@ public static class Visualizer
                 Console.ForegroundColor = ConsoleColor.Green;
                 break;
         }
-        
         
         return piece switch
         {

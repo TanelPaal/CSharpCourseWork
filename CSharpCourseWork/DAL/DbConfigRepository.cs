@@ -98,8 +98,7 @@ public class DbConfigRepository : IConfigRepository
         {
             configName = input;
         }
-
-
+        
         Configuration gameConfig = new Configuration(
         
             configName,
@@ -108,8 +107,7 @@ public class DbConfigRepository : IConfigRepository
             movePieceAfterNMoves,
             pieceLimit
         );
-
-
+        
         using var context = _contextFactory.CreateDbContext();
 
         context.GameConfigurations.Add(gameConfig);

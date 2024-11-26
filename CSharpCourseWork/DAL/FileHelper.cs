@@ -3,7 +3,6 @@
 using System.IO;
 using System.Text.Json;
 
-
 public static class FileHelper
 {
     public static string BasePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) +

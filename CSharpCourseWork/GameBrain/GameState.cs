@@ -29,9 +29,6 @@ public class GameState
 
     public override string ToString()
     {
-        
         return JsonSerializer.Serialize(this);
     }
-
-
 }

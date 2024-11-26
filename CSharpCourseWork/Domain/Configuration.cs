@@ -16,7 +16,6 @@ public class Configuration
     public int PieceLimit { get; set; } = 4;
 
     public ICollection<SavedGame>? SaveGames { get; set; }
-
     
     public override string ToString()
     {

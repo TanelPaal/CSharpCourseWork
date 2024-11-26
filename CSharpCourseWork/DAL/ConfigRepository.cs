@@ -33,7 +33,6 @@ public class ConfigRepository: IConfigRepository
     {
         return _gameConfigurations.Single(c => c.Name == name);
     }
-    
     // n
     // testing 5,5 4
     

@@ -57,7 +57,6 @@ public class Menus
                 MenuItemAction = SavedGamesLoader.MainLoop
             }
         ]);
-
     
     private static string DummyMethod()
     {

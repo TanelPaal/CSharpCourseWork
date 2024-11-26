@@ -14,8 +14,6 @@ public class JsonConfigRepository : IConfigRepository
                           gameConfigName + "_" +
                           DateTime.Now.ToString("yyyy-MM-dd_HH-mm") +
                           FileHelper.ConfigExtension, jsonStateString);
-
-
     }
     public List<string> GetConfigurationNames()
     {
@@ -24,7 +22,6 @@ public class JsonConfigRepository : IConfigRepository
             //generate directory
             GenerateDefaultConfiguration();
             //generate default from default config if none exists
-
         }
 
         return Directory
