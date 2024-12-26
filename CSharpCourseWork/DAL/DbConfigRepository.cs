@@ -71,11 +71,11 @@ public class DbConfigRepository : IConfigRepository
         Console.WriteLine("Enter the name of the new configuration:");
         string? input = Console.ReadLine();
 
-        Console.WriteLine("Enter the board width:");
+        Console.WriteLine("Enter the board width (Max 9):");
         string? boardWidthInput = Console.ReadLine();
         int boardWidth = string.IsNullOrWhiteSpace(boardWidthInput) ? 5 : int.Parse(boardWidthInput);
 
-        Console.WriteLine("Enter the board height:");
+        Console.WriteLine("Enter the board height (Max 9):");
         string? boardHeightInput = Console.ReadLine();
         int boardHeight = string.IsNullOrWhiteSpace(boardHeightInput) ? 5 : int.Parse(boardHeightInput);
 
@@ -83,7 +83,7 @@ public class DbConfigRepository : IConfigRepository
         string? movePieceAfterNMovesInput = Console.ReadLine();
         int movePieceAfterNMoves = string.IsNullOrWhiteSpace(movePieceAfterNMovesInput) ? 4 : int.Parse(movePieceAfterNMovesInput);
         
-        Console.WriteLine("Enter the number of moves after which a piece can be moved:");
+        Console.WriteLine("Enter the piece limit:");
         string? pieceLimitInput = Console.ReadLine();
         int pieceLimit = string.IsNullOrWhiteSpace(pieceLimitInput) ? 4 : int.Parse(pieceLimitInput);
 

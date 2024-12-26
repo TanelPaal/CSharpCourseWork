@@ -80,15 +80,19 @@ public static class GameController
                 _configRepository.GetConfigurationNames()[configNo]
             );
             
-            var gameBoard = new EGamePiece[chosenConfig.BoardSizeWidth][];
+            // Limit the board size to 9x9
+            int boardWidth = Math.Min(chosenConfig.BoardSizeWidth, 9);
+            int boardHeight = Math.Min(chosenConfig.BoardSizeHeight, 9);
+            
+            var gameBoard = new EGamePiece[boardWidth][];
             for (var x = 0; x < gameBoard.Length; x++)
             {
-                gameBoard[x] = new EGamePiece[chosenConfig.BoardSizeHeight];
+                gameBoard[x] = new EGamePiece[boardHeight];
             }
 
             // Calculate the center position
-            int centerX = (int)Math.Floor((double)chosenConfig.BoardSizeWidth / 2);
-            int centerY = (int)Math.Floor((double)chosenConfig.BoardSizeHeight / 2);
+            int centerX = (int)Math.Floor((double)boardWidth / 2);
+            int centerY = (int)Math.Floor((double)boardHeight / 2);
             int[] _gameArea = { centerX, centerY };
             Console.WriteLine($"{centerX}, {centerY}");
 

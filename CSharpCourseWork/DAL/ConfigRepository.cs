@@ -45,11 +45,11 @@ public class ConfigRepository: IConfigRepository
              name = "Default name";
          }
 
-         Console.WriteLine("Enter the board width:");
+         Console.WriteLine("Enter the board width (Max 9):");
          string? boardWidthInput = Console.ReadLine();
          int boardWidth = string.IsNullOrWhiteSpace(boardWidthInput) ? 5 : int.Parse(boardWidthInput);
 
-         Console.WriteLine("Enter the board height:");
+         Console.WriteLine("Enter the board height (Max 9):");
          string? boardHeightInput = Console.ReadLine();
          int boardHeight = string.IsNullOrWhiteSpace(boardHeightInput) ? 5 : int.Parse(boardHeightInput);
 
