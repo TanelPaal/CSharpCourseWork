@@ -66,17 +66,53 @@ public class JsonConfigRepository : IConfigRepository
             name = "Default name";
         }
 
-        Console.WriteLine("Enter the board width (Max 9):");
-        string? boardWidthInput = Console.ReadLine();
-        int boardWidth = string.IsNullOrWhiteSpace(boardWidthInput) ? 5 : int.Parse(boardWidthInput);
+        int boardWidth;
+        while (true)
+        {
+            Console.WriteLine("Enter the board width (Max 9):");
+            string? boardWidthInput = Console.ReadLine();
+            if (int.TryParse(boardWidthInput, out boardWidth) && boardWidth <= 9)
+            {
+                break;
+            }
+            Console.WriteLine("Invalid input. Please enter a number between 1 and 9.");
+        }
 
-        Console.WriteLine("Enter the board height (Max 9):");
-        string? boardHeightInput = Console.ReadLine();
-        int boardHeight = string.IsNullOrWhiteSpace(boardHeightInput) ? 5 : int.Parse(boardHeightInput);
+        int boardHeight;
+        while (true)
+        {
+            Console.WriteLine("Enter the board height (Max 9):");
+            string? boardHeightInput = Console.ReadLine();
+            if (int.TryParse(boardHeightInput, out boardHeight) && boardHeight <= 9)
+            {
+                break;
+            }
+            Console.WriteLine("Invalid input. Please enter a number between 1 and 9.");
+        }
 
-        Console.WriteLine("Enter the number of moves after which a piece can be moved:");
-        string? movePieceAfterNMovesInput = Console.ReadLine();
-        int movePieceAfterNMoves = string.IsNullOrWhiteSpace(movePieceAfterNMovesInput) ? 4 : int.Parse(movePieceAfterNMovesInput);
+        int movePieceAfterNMoves;
+        while (true)
+        {
+            Console.WriteLine("Enter the number of moves after which a piece can be moved:");
+            string? movePieceAfterNMovesInput = Console.ReadLine();
+            if (int.TryParse(movePieceAfterNMovesInput, out movePieceAfterNMoves))
+            {
+                break;
+            }
+            Console.WriteLine("Invalid input. Please enter a valid number.");
+        }
+
+        int pieceLimit; // Not Implemented in DB or JSON
+        while (true)
+        {
+            Console.WriteLine("Enter the piece limit:");
+            string? pieceLimitInput = Console.ReadLine();
+            if (int.TryParse(pieceLimitInput, out pieceLimit))
+            {
+                break;
+            }
+            Console.WriteLine("Invalid input. Please enter a valid number.");
+        }
 
         Console.WriteLine("Enter the name of the config:");
         Random random = new Random();
