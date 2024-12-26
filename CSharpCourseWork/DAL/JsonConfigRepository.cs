@@ -11,8 +11,8 @@ public class JsonConfigRepository : IConfigRepository
     public void SaveConfig(string jsonStateString, string gameConfigName)
     {
         File.WriteAllText(FileHelper.BasePath +
-                          gameConfigName + "_" +
-                          DateTime.Now.ToString("yyyy-MM-dd_HH-mm") +
+                          gameConfigName + "(" +
+                          DateTime.Now.ToString("yyyyMMdd_HHmm") + ")" +
                           FileHelper.ConfigExtension, jsonStateString);
     }
     public List<string> GetConfigurationNames()
