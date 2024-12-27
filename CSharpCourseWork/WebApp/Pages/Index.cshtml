@@ -1,0 +1,31 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Main Menu";
+    Layout = null;
+}
+
+<h1 class="menu-title">Welcome to Tic-Tac-Two</h1>
+
+<div class="menu-container">
+    <form method="post" class="join-game-form">
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="error-message">
+                @Model.ErrorMessage
+            </div>
+        }
+
+        <input type="text" id="username" name="username" required class="input-field"/>
+        <button type="submit" name="action" value="Login" class="menu-button">Login</button>
+    </form>
+</div>
+
+
+<style>
+    .error-message {
+        color: red;
+        margin-bottom: 10px;
+    }
+</style>

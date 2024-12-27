@@ -1,0 +1,22 @@
+﻿@page
+@model WebApp.Pages.Dashboard
+
+@{
+    ViewData["Title"] = "Dashboard";
+
+    Layout = null;
+}
+
+
+<div class="dashboard">
+    <h1 class="menu-title">Welcome to Dashboard</h1>
+    <p>
+        <a class="btn" asp-page="/Game/Create">New Game</a>
+    </p>
+    <p>
+        <a class="btn" asp-page="/Games/Join">Join a game</a>
+    </p>
+    <p>
+        <a class="btn" asp-page="/Games/Unfinished">Existing games</a>
+    </p>
+</div>

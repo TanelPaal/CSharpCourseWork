@@ -27,6 +27,8 @@ public class DbConfigRepository : IConfigRepository
         using var context = _contextFactory.CreateDbContext();
         var config = context.GameConfigurations.FirstOrDefault(config => config.Name == name)!;
 
+        
+
         GameConfiguration gameConfig = new GameConfiguration(
             config.Name,
             config.BoardSizeWidth,

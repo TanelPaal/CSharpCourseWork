@@ -1,0 +1,112 @@
+﻿@page
+@model WebApp.Pages.Game.Create
+
+@{
+    Layout = null;
+}
+
+<h1>Create a new game</h1>
+
+<form method="post">
+    <div class="container">
+        <div class="item-list">
+            @foreach (var item in Model.Configurations)
+            {
+                <button type="button" class="item @(Model.SelectedConfiguration == item ? "selected" : "")"
+                        onclick="selectConfiguration(this, '@item')">
+                    <p>@item</p>
+                    <p>Line 2 for @item</p>
+                </button>
+            }
+        </div>
+    </div>
+
+    <input type="hidden" id="selectedConfiguration" name="SelectedConfiguration" value="@Model.SelectedConfiguration" />
+
+    <div>
+        <label for="configurations">Select Configuration:</label>
+        <select id="configurations" asp-for="SelectedConfiguration" asp-items="@(new SelectList(Model.Configurations))">
+            <option value="">-- Select Configuration --</option>
+        </select>
+    </div>
+    <div>
+        <label for="gameName">Game Name:</label>
+        <input type="text" id="gameName" asp-for="GameName"/>
+    </div>
+    <div>
+        <label for="playerOneType">Player One Type:</label>
+        <select id="playerOneType" asp-for="PlayerOneType">
+            <option value="Self">Self</option>
+            <option value="AI">AI</option>
+        </select>
+    </div>
+    <div>
+        <label for="playerTwoType">Player Two Type:</label>
+        <select id="playerTwoType" asp-for="PlayerTwoType">
+            <option value="Self">Self</option>
+            <option value="AI">AI</option>
+            <option value="Human">Other player</option>
+        </select>
+    </div>
+    <div>
+        <button type="submit">Create Game</button>
+    </div>
+</form>
+
+@if (!ModelState.IsValid)
+{
+    <div class="validation-summary-errors">
+        @foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
+
+
+
+<script>
+    function selectConfiguration(button, item) {
+        // Update the hidden input field
+        document.getElementById('selectedConfiguration').value = item;
+
+        // Remove the "selected" class from all buttons
+        document.querySelectorAll('.item').forEach(el => el.classList.remove('selected'));
+
+        // Add the "selected" class to the clicked button
+        button.classList.add('selected');
+    }
+</script>
+
+
+<style>
+    .container {
+        height: 200px; /* Adjust height as needed */
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+    .item-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .item {
+        margin-bottom: 5px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: pointer;
+        background-color: #f9f9f9;
+        text-align: left;
+    }
+
+
+    .selected {
+        background-color: rgba(8, 255, 0, 0.6);
+        color: white;
+        border-color: darkred;
+    }
+</style>
