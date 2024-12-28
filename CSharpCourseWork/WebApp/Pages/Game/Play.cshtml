@@ -57,8 +57,7 @@
     <button type="button" onclick="promptCoordinates('place')">Place Piece</button>
     <button type="button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
     <button type="button" onclick="promptCoordinates('movePiece')">Move Piece</button>
-    <button type="button" onclick="setAction('save')">Save</button>
-    <button type="button" onclick="window.history.back()">Return</button>
+    <button type="submit" formaction="/Dashboard">Return to Menu</button>
 </form>
 
 <script>
@@ -73,8 +72,6 @@
     }
     function setAction(action, gameId) {
         document.getElementById('action').value = action;
-
-
         document.getElementById('actionForm').submit();
     }
 </script>

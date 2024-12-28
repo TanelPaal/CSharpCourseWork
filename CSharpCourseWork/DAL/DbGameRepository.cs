@@ -82,10 +82,8 @@ public class DbGameRepository : IGameRepository
             // Extract _oTurnCount and cast to int
             gameData["_oTurnCount"].GetInt32()
         );
-        Console.WriteLine(savedGame.Id);
         gameState.Id = savedGame.Id;
-        Console.WriteLine(gameState.Id);
-        Console.WriteLine(gameData["Id"].GetInt32());
+
         
         return gameState;
     }

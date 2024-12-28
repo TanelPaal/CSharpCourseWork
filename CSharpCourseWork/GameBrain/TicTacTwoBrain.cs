@@ -67,6 +67,7 @@ public class TicTacTwoBrain
     private void GetNextMoveBy()
     {
         _gameState._nextMoveBy = _gameState._nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+        Console.WriteLine("switching sides");
     }
 
     public bool MovePlayableArea(int x, int y)

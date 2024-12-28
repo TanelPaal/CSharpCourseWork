@@ -9,6 +9,7 @@ namespace WebApp.Pages.Game;
 public class Play : PageModel
 {
     private IGameRepository _gameRepository;
+
     private TicTacTwoBrain? _gameBrain { get; set; }
     public string GameId = "";
 
@@ -21,21 +22,21 @@ public class Play : PageModel
     public GameState? GameState { get; set; }
     
     
-    public IActionResult  OnGet(string gameId)
+    public void OnGet(string gameId)
     {
         GameId = gameId;
         GameState = _gameRepository.GetSaveById(int.Parse(gameId));
         _gameBrain = new TicTacTwoBrain(GameState);
-        return Page();
+        Console.WriteLine(_gameBrain);
     }
 
     public IActionResult OnPost(string gameId, int x, int y, string action)
     {
-        Console.WriteLine(gameId);
-        Console.WriteLine("hello");
         GameId = gameId;
         GameState = _gameRepository.GetSaveById(int.Parse(gameId));
         _gameBrain = new TicTacTwoBrain(GameState);
+        var tempGameBrain = _gameBrain;
+        
 
         int[,] output = new int[4, 2];
 
@@ -47,20 +48,25 @@ public class Play : PageModel
                 output[0, 0] = 1;
                 output[1, 0] = x;
                 output[1, 1] = y;
-                GameController.ProcessInput((output, true, false), _gameBrain);
+                GameController.ProcessInput((output, true, false), tempGameBrain);
+                _gameBrain = tempGameBrain;
+                _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
                 break;
+
             case "moveGrid":
                 output[0, 0] = 2;
                 output[1, 0] = x;
                 output[1, 1] = y;
-                GameController.ProcessInput((new int[,] { { x, y } }, true, false), _gameBrain);
+                GameController.ProcessInput((new int[,] { { x, y } }, true, false), tempGameBrain);
+                _gameBrain = tempGameBrain;
+                _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
+
                 break;
+
             case "movePiece":
                 // Implement logic to move a piece
                 break;
-            case "save":
-                _gameRepository.SaveGame(GameState, GameState.Id.ToString());
-                break;
+
         }
 
         return Page();
