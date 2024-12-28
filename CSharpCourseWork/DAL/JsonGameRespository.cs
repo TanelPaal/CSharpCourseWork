@@ -18,6 +18,20 @@ public class JsonGameRespository: IGameRepository
                           FileHelper.GameExtension, jsonStateString);
     }
     
+    public GameState GetSaveById(int gameId)
+    {
+        var gameNames = GetSaveNames();
+        var tempGameSaves = new List<GameState>();
+        foreach (var saveName in gameNames)
+        {
+            var tempsaveGame = GetSaveByName(saveName);
+            tempGameSaves.Add(tempsaveGame);
+        }
+
+        var saveGame = tempGameSaves.FirstOrDefault(g => g.Id == gameId)!;
+        return saveGame;
+    }
+    
     public GameState GetSaveByName(string gameSaveName)
     {
         var filePath = FileHelper.BasePath + gameSaveName + FileHelper.GameExtension;

@@ -3,8 +3,9 @@
 namespace DAL;
 
 using System.Text.Json;
+using Domain;
 
-public class ConfigRepository: IConfigRepository
+public class ConfigRepository
 {
     public List<GameConfiguration> _gameConfigurations = new List<GameConfiguration>()
     {
@@ -20,6 +21,12 @@ public class ConfigRepository: IConfigRepository
             MovePieceAfterNMoves = 4,
         },
     };
+
+    public object GetConfigurationList()
+    {
+        return _gameConfigurations.Select(config => config.Name).ToList();
+    }
+
 
     public List<string> GetConfigurationNames()
     {

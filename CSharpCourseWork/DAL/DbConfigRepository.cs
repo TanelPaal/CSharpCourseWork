@@ -22,6 +22,14 @@ public class DbConfigRepository : IConfigRepository
         return context.GameConfigurations.Select(config => config.Name).ToList();
     }
 
+    public object GetConfigurationList()
+    {
+        CreateInitialConfig();
+
+        using var context = _contextFactory.CreateDbContext();
+        return context.GameConfigurations.ToList();
+    }
+
     public GameConfiguration GetConfigurationByName(string name)
     {
         using var context = _contextFactory.CreateDbContext();

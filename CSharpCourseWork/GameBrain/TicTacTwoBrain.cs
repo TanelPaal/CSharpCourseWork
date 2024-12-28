@@ -51,8 +51,6 @@ public class TicTacTwoBrain
 
         return copyOfBoard;
     }
-
-
     
     private void IncrementTurnCount()
     {
@@ -65,11 +63,11 @@ public class TicTacTwoBrain
             _gameState._oTurnCount++;
         }
     }
+
     private void GetNextMoveBy()
     {
         _gameState._nextMoveBy = _gameState._nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
     }
-
 
     public bool MovePlayableArea(int x, int y)
     {
@@ -139,20 +137,16 @@ public class TicTacTwoBrain
             Console.WriteLine($"{_gameState._nextMoveBy} wins!");
             return true;
         }
-        
         // Check for tie condition.
         if (IsBoardFull())
         {
             Console.WriteLine("It's a tie!");
             return true;
         }
-
         // Console.WriteLine(GetBoard());
         GetNextMoveBy();
-            
 
         return true;
-        
     }
 
     public bool PlayableAreaValidMove(int x, int y)

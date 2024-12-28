@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\ConsoleApp\ConsoleApp.csproj" />
         <ProjectReference Include="..\DAL\DAL.csproj" />
         <ProjectReference Include="..\MenuSystem\MenuSystem.csproj" />
     </ItemGroup>

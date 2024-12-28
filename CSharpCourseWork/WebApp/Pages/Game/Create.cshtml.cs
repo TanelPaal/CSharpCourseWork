@@ -4,13 +4,14 @@ using GameBrain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Domain;
 
 namespace WebApp.Pages.Game;
 
 public class Create : PageModel
 {
-    private readonly IConfigRepository _configRepository;
-    private readonly IGameRepository _gameRepository;
+    private IConfigRepository _configRepository;
+    private IGameRepository _gameRepository;
 
     public Create(IConfigRepository configRepository, IGameRepository gameRepository)
     {
@@ -19,7 +20,7 @@ public class Create : PageModel
     }
 
     [BindProperty] 
-    public List<string> Configurations { get; set; } = new List<string>();
+    public List<Configuration> Configurations { get; set; } = new List<Configuration>();
 
     [BindProperty]
     public string SelectedConfiguration { get; set; } = "";
@@ -37,50 +38,55 @@ public class Create : PageModel
     public void OnGet()
     {
         // You can load data from a database or other sources here
-        Configurations = _configRepository.GetConfigurationNames();
+        Configurations = (List<Configuration>)_configRepository.GetConfigurationList();
     }
-
 
 
     public IActionResult OnPost(string SelectedConfiguration)
     {
-
-
-
-
-        Configurations = _configRepository.GetConfigurationNames();
-
-
+        Configurations = (List<Configuration>)_configRepository.GetConfigurationList();
+        
         if (string.IsNullOrEmpty(SelectedConfiguration))
         {
             ModelState.AddModelError(string.Empty, "Please select a configuration.");
             return Page();
         }
+        
+        if (string.IsNullOrEmpty(GameName))
+        {
+            ModelState.AddModelError(string.Empty, "Please enter a game name.");
+            return Page();
+        }
 
         var config = _configRepository.GetConfigurationByName(SelectedConfiguration);
         
+        // Initialize the game board with the correct size
+        var gameBoard = new EGamePiece[config.BoardSizeWidth][];
+        for (var x = 0; x < gameBoard.Length; x++)
+        {
+            gameBoard[x] = new EGamePiece[config.BoardSizeHeight];
+        }
+
+        // Initialize the game area
+        int[] gameArea = new int[config.BoardSizeWidth * config.BoardSizeHeight];
+
         var gameState = new GameState(
-            new EGamePiece[config.BoardSizeWidth][], // Initialize the game board with the correct size
+            gameBoard,
             config,
-            new int[config.BoardSizeWidth * config.BoardSizeHeight], // Initialize the game area
+            gameArea,
             EGamePiece.X, // Default next move by X
             0, // Initial X turn count
             0  // Initial O turn count
         );
         
-        _gameRepository.SaveGame(gameState, "NewGame");
+        _gameRepository.SaveGame(gameState, GameName);
 
         return Page();
     }
     
-    
-    
-
 
     public void HandleItemClick(string item)
     {
         SelectedConfiguration = item;
     }
-    
-
 }

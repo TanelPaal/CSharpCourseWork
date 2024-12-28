@@ -40,11 +40,19 @@ public class DbGameRepository : IGameRepository
         context.SaveChanges();
     }
 
+    public GameState GetSaveById(int gameId)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        var saveGameName = context.SavedGames.FirstOrDefault(g => g.Id == gameId)!.Name;
+        var saveGame = GetSaveByName(saveGameName);
+        return saveGame;
+    }
+
     public GameState GetSaveByName(string gameSaveName)
     {
         using var context = _contextFactory.CreateDbContext();
         var savedGame = context.SavedGames.FirstOrDefault(g => g.Name == gameSaveName)!;
-
+        Console.WriteLine(savedGame.Id);
         var gameData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(savedGame.State!)!;
         
         var gameConfiguration = context.GameConfigurations.FirstOrDefault(g => g.Id == savedGame.ConfigurationId)!;
@@ -74,13 +82,15 @@ public class DbGameRepository : IGameRepository
             // Extract _oTurnCount and cast to int
             gameData["_oTurnCount"].GetInt32()
         );
-        Console.WriteLine(gameState.Id);
-        gameState.Id = gameData["Id"].GetInt32();
+        Console.WriteLine(savedGame.Id);
+        gameState.Id = savedGame.Id;
         Console.WriteLine(gameState.Id);
         Console.WriteLine(gameData["Id"].GetInt32());
         
         return gameState;
     }
+    
+    
 
     public List<string> GetSaveNames()
     {

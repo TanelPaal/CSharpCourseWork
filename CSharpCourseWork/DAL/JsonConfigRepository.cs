@@ -15,6 +15,21 @@ public class JsonConfigRepository : IConfigRepository
                           DateTime.Now.ToString("yyyyMMdd_HHmm") + ")" +
                           FileHelper.ConfigExtension, jsonStateString);
     }
+
+
+    public object GetConfigurationList()
+    {
+        var ConfigNames = GetConfigurationNames();
+        List<GameConfiguration> ConfigList = new List<GameConfiguration>();
+        foreach (var configName in ConfigNames)
+        {
+            var config = GetConfigurationByName(configName);
+            ConfigList.Append(config);
+        }
+
+        return ConfigList;
+    }
+
     public List<string> GetConfigurationNames()
     {
         if (FileHelper.RootFolderGenerator() || FileHelper.DoesRootFolderContainConfigs())

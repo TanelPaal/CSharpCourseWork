@@ -1,0 +1,17 @@
+﻿@page
+@model WebApp.Pages.Game.ListGames
+
+@{
+    Layout = null;
+}
+
+<h1>List of Saved Games</h1>
+
+<ul>
+    @foreach (var gameSave in Model.GameSaves)
+    {
+        <li>
+            <a class="item" asp-page="/Game/Play" asp-route-gameId="@gameSave.Id">@gameSave.Id</a>
+        </li>
+    }
+</ul>

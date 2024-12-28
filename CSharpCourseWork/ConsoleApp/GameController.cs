@@ -137,7 +137,7 @@ public static class GameController
         return Console.ReadLine()!;
     }
 
-    private static void ProcessInput((int[,] output, bool success, bool hasSecondCoords) result,
+    public static void ProcessInput((int[,] output, bool success, bool hasSecondCoords) result,
         TicTacTwoBrain gameInstance)
     {
         if (!result.success)

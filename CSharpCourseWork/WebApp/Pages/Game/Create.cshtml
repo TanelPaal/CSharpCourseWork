@@ -12,23 +12,15 @@
         <div class="item-list">
             @foreach (var item in Model.Configurations)
             {
-                <button type="button" class="item @(Model.SelectedConfiguration == item ? "selected" : "")"
-                        onclick="selectConfiguration(this, '@item')">
-                    <p>@item</p>
-                    <p>Line 2 for @item</p>
+                <button type="button" class="item @(Model.SelectedConfiguration == item.Name ? "selected" : "")"
+                        onclick="selectConfiguration(this, '@item.Name')">
+                    <p>Grid @item.BoardSizeHeight x @item.BoardSizeWidth,<br /> Move Playable Grid After @item.MovePieceAfterNMoves</p>
                 </button>
             }
         </div>
     </div>
-
     <input type="hidden" id="selectedConfiguration" name="SelectedConfiguration" value="@Model.SelectedConfiguration" />
-
-    <div>
-        <label for="configurations">Select Configuration:</label>
-        <select id="configurations" asp-for="SelectedConfiguration" asp-items="@(new SelectList(Model.Configurations))">
-            <option value="">-- Select Configuration --</option>
-        </select>
-    </div>
+    
     <div>
         <label for="gameName">Game Name:</label>
         <input type="text" id="gameName" asp-for="GameName"/>
@@ -43,7 +35,6 @@
     <div>
         <label for="playerTwoType">Player Two Type:</label>
         <select id="playerTwoType" asp-for="PlayerTwoType">
-            <option value="Self">Self</option>
             <option value="AI">AI</option>
             <option value="Human">Other player</option>
         </select>
@@ -63,8 +54,6 @@
     </div>
 }
 
-
-
 <script>
     function selectConfiguration(button, item) {
         // Update the hidden input field
@@ -77,7 +66,6 @@
         button.classList.add('selected');
     }
 </script>
-
 
 <style>
     .container {
@@ -102,7 +90,6 @@
         background-color: #f9f9f9;
         text-align: left;
     }
-
 
     .selected {
         background-color: rgba(8, 255, 0, 0.6);
