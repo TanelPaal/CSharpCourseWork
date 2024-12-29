@@ -29,20 +29,7 @@ public class Play : PageModel
     
     private bool IsInsidePlayableArea(int x, int y)
     {
-        if (GameState?.GameConfiguration == null)
-        {
-            return false;
-        }
-        
-        int boardWidth = GameState.GameConfiguration.BoardSizeWidth;
-        int boardHeight = GameState.GameConfiguration.BoardSizeHeight;
-
-        int gridStartX = (boardWidth - 3) / 2;
-        int gridStartY = (boardHeight - 3) / 2;
-        int gridEndX = gridStartX + 2;
-        int gridEndY = gridStartY + 2;
-
-        return x >= gridStartX && x <= gridEndX && y >= gridStartY && y <= gridEndY;
+        return _gameBrain!.IsInsidePlayableArea(x, y);
     }
     
     
@@ -81,7 +68,7 @@ public class Play : PageModel
                 output[0, 0] = 2;
                 output[1, 0] = x;
                 output[1, 1] = y;
-                GameController.ProcessInput((new int[,] { { x, y } }, true, false), tempGameBrain);
+                GameController.ProcessInput((output, true, false), tempGameBrain);
                 _gameBrain = tempGameBrain;
                 _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
 

@@ -37,6 +37,9 @@
 </head>
 <body>
 <h1>Play Game</h1>
+
+<h2>@Model.GameState?._nextMoveBy's turn</h2>
+
 <div class="board">
     @*@for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
     {
