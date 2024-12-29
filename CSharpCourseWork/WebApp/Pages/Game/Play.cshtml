@@ -50,13 +50,15 @@
 <form method="post" id="actionForm">
     <input type="hidden" name="x" id="x" />
     <input type="hidden" name="y" id="y" />
+    <input type="hidden" name="oldX" id="oldX" />
+    <input type="hidden" name="oldY" id="oldY" />
     <input type="hidden" name="action" id="action" />
     <input type="hidden" name="gameId" id="gameId" value="@Model.GameId" />
 
 
     <button type="button" onclick="promptCoordinates('place')">Place Piece</button>
     <button type="button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
-    <button type="button" onclick="promptCoordinates('movePiece')">Move Piece</button>
+    <button type="button" onclick="movePiece('movePiece')">Move Piece</button>
     <button type="submit" formaction="/Dashboard">Return to Menu</button>
 </form>
 
@@ -68,6 +70,20 @@
             document.getElementById('x').value = x;
             document.getElementById('y').value = y;
             setAction(action);
+        }
+    }
+    
+    function movePiece() {
+        var oldCoords = prompt("Enter old coordinates (x,y):");
+        var newCoords = prompt("Enter new coordinates (x,y):");
+        if (oldCoords && newCoords) {
+            var [oldX, oldY] = oldCoords.split(',').map(Number);
+            var [newX, newY] = newCoords.split(',').map(Number);
+            document.getElementById('oldX').value = oldX;
+            document.getElementById('oldY').value = oldY;
+            document.getElementById('x').value = newX;
+            document.getElementById('y').value = newY;
+            setAction('movePiece');
         }
     }
     function setAction(action, gameId) {

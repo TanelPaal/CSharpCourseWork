@@ -30,7 +30,7 @@ public class Play : PageModel
         Console.WriteLine(_gameBrain);
     }
 
-    public IActionResult OnPost(string gameId, int x, int y, string action)
+    public IActionResult OnPost(string gameId, int x, int y, int oldX, int oldY, string action)
     {
         GameId = gameId;
         GameState = _gameRepository.GetSaveById(int.Parse(gameId));
@@ -65,6 +65,14 @@ public class Play : PageModel
 
             case "movePiece":
                 // Implement logic to move a piece
+                output[0, 0] = 3;
+                output[1, 0] = x;
+                output[1, 1] = y;
+                output[2, 0] = oldX;
+                output[2, 1] = oldY;
+                GameController.ProcessInput((output, true, true), tempGameBrain);
+                _gameBrain = tempGameBrain;
+                _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
                 break;
 
         }
