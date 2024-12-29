@@ -9,7 +9,6 @@
 
 <div class="menu-container">
     <form method="post" class="join-game-form">
-
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
         {
             <div class="error-message">
@@ -17,13 +16,38 @@
             </div>
         }
 
-        <input type="text" id="username" name="username" required class="input-field"/>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required class="input-field" />
         <button type="submit" name="action" value="Login" class="menu-button">Login</button>
     </form>
 </div>
 
-
 <style>
+    .menu-title {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .menu-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .join-game-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .input-field {
+        margin-bottom: 10px;
+        padding: 5px;
+        font-size: 16px;
+    }
+    .menu-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
     .error-message {
         color: red;
         margin-bottom: 10px;

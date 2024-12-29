@@ -11,7 +11,21 @@
     @foreach (var gameSave in Model.GameSaves)
     {
         <li>
-            <a class="item" asp-page="/Game/Play" asp-route-gameId="@gameSave.Id">@gameSave.Id</a>
+            @if (Model.CanJoinGame(gameSave.Id.ToString()))
+            {
+                <a class="item" asp-page="/Game/Play" asp-route-gameId="@gameSave.Id">@gameSave.Id</a>
+            }
+            else
+            {
+                <span class="item disabled">@gameSave.Id (Full)</span>
+            }
         </li>
     }
 </ul>
+
+<style>
+    .disabled {
+        color: gray;
+        cursor: not-allowed;
+    }
+</style>

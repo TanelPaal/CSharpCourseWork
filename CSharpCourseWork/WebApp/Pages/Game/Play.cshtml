@@ -41,16 +41,6 @@
 <h2>@Model.GameState?._nextMoveBy's turn</h2>
 
 <div class="board">
-    @*@for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
-    {
-        for (int x = 0; x < (Model.GameState?.GameConfiguration?.BoardSizeWidth ?? 3); x++)
-        {
-            var cellClass = Model.GameState?.GameBoard[x][y] == EGamePiece.Empty ? "cell empty" : "cell";
-            <div class="@cellClass" onclick="makeMove(@x, @y)">
-                @Model.GameState?.GameBoard[x][y]
-            </div>
-        }
-    }*@
     @for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
     {
         for (int x = 0; x < (Model.GameState?.GameConfiguration?.BoardSizeWidth ?? 3); x++)
@@ -113,6 +103,53 @@
     function setAction(action, gameId) {
         document.getElementById('action').value = action;
         document.getElementById('actionForm').submit();
+    }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/gameHub")
+        .build();
+
+    connection.on("UpdateTurn", function (currentTurn) {
+        const username = getCookie("Username");
+        const isUserTurn = currentTurn === username;
+        const buttons = document.querySelectorAll(".action-button");
+
+        buttons.forEach(function (button) {
+            button.disabled = !isUserTurn;
+        });
+    });
+
+    connection.on("Error", function (message) {
+        alert(message);
+    });
+
+    connection.on("ReceiveGameStateUpdate", function () {
+        // Refresh the page when a game state update is received
+        location.reload();
+    });
+
+    connection.start().then(function () {
+
+        connection.invoke("JoinGame", "@Model.GameId", "@Model.Username").catch(function (err) {
+            return console.error(err.toString());
+        });
+       
+    });
+
+    window.onbeforeunload = function () {
+
+        connection.invoke("LeaveGame", "@Model.GameId", "@Model.Username").catch(function (err) {
+            return console.error(err.toString());
+        });
+
+    };
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
     }
 </script>
 </body>

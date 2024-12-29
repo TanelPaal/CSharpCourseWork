@@ -3,20 +3,24 @@ using DAL;
 using GameBrain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.SignalR;
+using WebApp.Hubs;
 
 namespace WebApp.Pages.Game;
 
 public class Play : PageModel
 {
     private IGameRepository _gameRepository;
-
+    private readonly IHubContext<GameHub> _hubContext;
     private TicTacTwoBrain? _gameBrain { get; set; }
+    
     public string GameId = "";
+    public string Username = "";
 
-    public Play(IGameRepository gameRepository)
+    public Play(IGameRepository gameRepository, IHubContext<GameHub> hubContext)
     {
         _gameRepository = gameRepository;
-
+        _hubContext = hubContext;
     }
 
     public GameState? GameState { get; set; }
@@ -33,19 +37,22 @@ public class Play : PageModel
     }
     
     
-    public void OnGet(string gameId)
+    public async Task OnGetAsync(string gameId)
     {
         GameId = gameId;
         GameState = _gameRepository.GetSaveById(int.Parse(gameId));
         _gameBrain = new TicTacTwoBrain(GameState);
-        Console.WriteLine(_gameBrain);
+
+        Username = HttpContext.Session.GetString("Username")!;
+        Console.WriteLine(Username);
     }
 
-    public IActionResult OnPost(string gameId, int x, int y, int oldX, int oldY, string action)
+    public async void  OnPost(string gameId, int x, int y, int oldX, int oldY, string action)
     {
         GameId = gameId;
         GameState = _gameRepository.GetSaveById(int.Parse(gameId));
         _gameBrain = new TicTacTwoBrain(GameState);
+        Username = HttpContext.Session.GetString("Username")!;
         var tempGameBrain = _gameBrain;
         
 
@@ -54,14 +61,13 @@ public class Play : PageModel
         switch (action)
         {
             case "place":
-                
-
                 output[0, 0] = 1;
                 output[1, 0] = x;
                 output[1, 1] = y;
                 GameController.ProcessInput((output, true, false), tempGameBrain);
                 _gameBrain = tempGameBrain;
                 _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
+                await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate");
                 break;
 
             case "moveGrid":
@@ -71,6 +77,7 @@ public class Play : PageModel
                 GameController.ProcessInput((output, true, false), tempGameBrain);
                 _gameBrain = tempGameBrain;
                 _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
+                await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate");
 
                 break;
 
@@ -84,10 +91,8 @@ public class Play : PageModel
                 GameController.ProcessInput((output, true, true), tempGameBrain);
                 _gameBrain = tempGameBrain;
                 _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
+                await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate");
                 break;
-
         }
-
-        return Page();
     }
 }

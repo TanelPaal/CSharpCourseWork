@@ -2,6 +2,9 @@ using DAL;
 using DAL.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore;
+using WebApp.GameServ;
+using WebApp.Hubs;
+using WebApp.UserServ;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(connectionString)
         .EnableDetailedErrors()
         .EnableSensitiveDataLogging());
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout
+    options.Cookie.HttpOnly = true; // Make the session cookie HTTP only
+    options.Cookie.IsEssential = true; // Make the session cookie essential
+});
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -28,17 +37,22 @@ builder.Services.AddSession(options =>
 });
 builder.Services.AddHttpContextAccessor();
 
-
 // builder.Services.AddScoped<IConfigRepository, ConfigRepositoryJson>();
 // builder.Services.AddScoped<IGameRepository, GameRepositoryJson>();
-// builder.Services.AddScoped<IGamesAndPlayersRepository, GamesAndPlayersJson>();
 builder.Services.AddScoped<IConfigRepository, DbConfigRepository>();
 builder.Services.AddScoped<IGameRepository, DbGameRepository>();
 
 // =================
 
+// Add SignalR services
+builder.Services.AddSignalR();
+
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+builder.Services.AddSingleton<UserService>();
+
+builder.Services.AddSingleton<GameService>();
 
 var app = builder.Build();
 
@@ -61,8 +75,15 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+// Use session middleware
+app.UseSession();
+
 app.MapRazorPages();
 
-app.UseSession();
+// Map SignalR hubs
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<GameHub>("/gameHub");
+});
 
 app.Run();

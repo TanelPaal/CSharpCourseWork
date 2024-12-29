@@ -1,11 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using WebApp.UserServ;
 
 namespace WebApp.Pages;
 
 public class IndexModel : PageModel
 {
+    private readonly UserService _userService;
+    
     public string ErrorMessage { get; private set; } = "";
+    
+    public IndexModel(UserService userService)
+    {
+        _userService = userService;
+    }
 
     public IActionResult OnPost(string action, string? username)
     {
@@ -18,15 +26,21 @@ public class IndexModel : PageModel
                     ErrorMessage = "Empty username!";
                     return Page();
                 }
+                else if (_userService.IsUsernameTaken(username))
+                {
+                    ErrorMessage = "Username is already taken.";
+                    return Page();
+                }
+                else if (!_userService.CanAddUser())
+                {
+                    ErrorMessage = "Maximum number of players reached.";
+                    return Page();
+                }
                 else
                 {
-                    CookieOptions options = new CookieOptions
-                    {
-                        Expires = DateTimeOffset.Now.AddDays(7), // Expires in 7 days
-                        HttpOnly = true, // Prevents JavaScript from accessing the cookie
-                        Secure = Request.IsHttps // Set to true if using HTTPS
-                    };
-                    Response.Cookies.Append("Username", username, options);
+                    _userService.AddUser(username);
+
+                    HttpContext.Session.SetString("Username", username);
                     return RedirectToPage("./Dashboard");
                 }
             default:
