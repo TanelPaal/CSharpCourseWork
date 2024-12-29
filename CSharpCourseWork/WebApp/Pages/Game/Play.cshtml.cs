@@ -21,6 +21,30 @@ public class Play : PageModel
 
     public GameState? GameState { get; set; }
     
+    public bool IsMovableGrid(int x, int y)
+    {
+        // Implement your logic to determine if the cell (x, y) is part of the Movable Grid
+        return IsInsidePlayableArea(x, y);
+    }
+    
+    private bool IsInsidePlayableArea(int x, int y)
+    {
+        if (GameState?.GameConfiguration == null)
+        {
+            return false;
+        }
+        
+        int boardWidth = GameState.GameConfiguration.BoardSizeWidth;
+        int boardHeight = GameState.GameConfiguration.BoardSizeHeight;
+
+        int gridStartX = (boardWidth - 3) / 2;
+        int gridStartY = (boardHeight - 3) / 2;
+        int gridEndX = gridStartX + 2;
+        int gridEndY = gridStartY + 2;
+
+        return x >= gridStartX && x <= gridEndX && y >= gridStartY && y <= gridEndY;
+    }
+    
     
     public void OnGet(string gameId)
     {

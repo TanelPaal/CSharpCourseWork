@@ -30,16 +30,37 @@
             background-color: rgba(0, 0, 0, 0.1); /* Translucent background for empty cells */
             color: transparent; /* Make text invisible for empty cells */
         }
+        .movable-grid {
+            background-color: rgba(0, 255, 0, 0.3); /* Light green background for movable grid cells */
+    }
     </style>
 </head>
 <body>
 <h1>Play Game</h1>
 <div class="board">
-    @for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
+    @*@for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
     {
         for (int x = 0; x < (Model.GameState?.GameConfiguration?.BoardSizeWidth ?? 3); x++)
         {
             var cellClass = Model.GameState?.GameBoard[x][y] == EGamePiece.Empty ? "cell empty" : "cell";
+            <div class="@cellClass" onclick="makeMove(@x, @y)">
+                @Model.GameState?.GameBoard[x][y]
+            </div>
+        }
+    }*@
+    @for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
+    {
+        for (int x = 0; x < (Model.GameState?.GameConfiguration?.BoardSizeWidth ?? 3); x++)
+        {
+            var cellClass = "cell";
+            if (Model.GameState?.GameBoard[x][y] == EGamePiece.Empty)
+            {
+                cellClass += " empty";
+            }
+            if (Model.IsMovableGrid(x, y))
+            {
+                cellClass += " movable-grid";
+            }
             <div class="@cellClass" onclick="makeMove(@x, @y)">
                 @Model.GameState?.GameBoard[x][y]
             </div>
