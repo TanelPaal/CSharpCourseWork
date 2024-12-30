@@ -13,6 +13,7 @@ public class GameService
         {
             _gameSessions[gameId] = new ConcurrentDictionary<string, bool>();
         }
+        Console.WriteLine(_gameSessions[gameId].Count < MaxPlayersPerGame);
         return _gameSessions[gameId].Count < MaxPlayersPerGame;
     }
 
@@ -21,6 +22,7 @@ public class GameService
         Console.WriteLine(gameId + " " + username);
         if (CanAddPlayerToGame(gameId))
         {
+            Console.WriteLine(username + " Added to game");
             return _gameSessions[gameId].TryAdd(username, true);
         }
         return false;

@@ -8,7 +8,7 @@
 <h1 class="menu-title">Welcome to Tic-Tac-Two</h1>
 
 <div class="menu-container">
-    <form method="post" class="join-game-form">
+    <form method="post" class="join-game-form" onsubmit="saveUsername()">
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
         {
             <div class="error-message">
@@ -21,6 +21,13 @@
         <button type="submit" name="action" value="Login" class="menu-button">Login</button>
     </form>
 </div>
+
+<script>
+    function saveUsername() {
+        const username = document.getElementById('username').value;
+        sessionStorage.setItem('Username', username);
+    }
+</script>
 
 <style>
     .menu-title {

@@ -112,7 +112,7 @@
         .build();
 
     connection.on("UpdateTurn", function (currentTurn) {
-        const username = getCookie("Username");
+        const username = sessionStorage.getItem("Username");
         const isUserTurn = currentTurn === username;
         const buttons = document.querySelectorAll(".action-button");
 
@@ -131,19 +131,34 @@
     });
 
     connection.start().then(function () {
+        const gameId = "@Model.GameId";
+        const username = sessionStorage.getItem("Username");
+        const joinedGames = JSON.parse(sessionStorage.getItem("joinedGames") || "{}");
 
-        connection.invoke("JoinGame", "@Model.GameId", "@Model.Username").catch(function (err) {
-            return console.error(err.toString());
-        });
-       
+        if (!joinedGames[gameId]) {
+            console.log(gameId, username);
+            connection.invoke("JoinGame", gameId, username).then(() => {
+                joinedGames[gameId] = true;
+                sessionStorage.setItem("joinedGames", JSON.stringify(joinedGames));
+            }).catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
     });
 
     window.onbeforeunload = function () {
+        const gameId = "@Model.GameId";
+        const username = sessionStorage.getItem("Username");
+        const joinedGames = JSON.parse(sessionStorage.getItem("joinedGames") || "{}");
 
-        connection.invoke("LeaveGame", "@Model.GameId", "@Model.Username").catch(function (err) {
-            return console.error(err.toString());
-        });
-
+        if (joinedGames[gameId]) {
+            connection.invoke("LeaveGame", gameId, username).then(() => {
+                delete joinedGames[gameId];
+                sessionStorage.setItem("joinedGames", JSON.stringify(joinedGames));
+            }).catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
     };
 
     function getCookie(name) {
