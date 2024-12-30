@@ -30,10 +30,9 @@ namespace WebApp.Hubs
             if (_gameService.AddPlayerToGame(gameId, username))
             {
                 var player = _gameService.GetPlayer(gameId, username);
-
+                
                 await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
                 await Clients.Caller.SendAsync("ReceiveAssignedPiece", player.Piece);
-                await Clients.Group(gameId).SendAsync("UpdateTurn", _gameService.GetCurrentTurn(gameId));
                 await Clients.Group(gameId).SendAsync("ReceiveGameStateUpdate");
                 Console.WriteLine("added " + username + " to game "+ gameId);
             }

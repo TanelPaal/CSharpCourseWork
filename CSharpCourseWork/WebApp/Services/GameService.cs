@@ -11,7 +11,7 @@ public class Player
 
 public class GameService
 {
-    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, Player>> _gameSessions = new ConcurrentDictionary<string, ConcurrentDictionary<string, Player>>();
+    public readonly ConcurrentDictionary<string, ConcurrentDictionary<string, Player>> _gameSessions = new ConcurrentDictionary<string, ConcurrentDictionary<string, Player>>();
     private const int MaxPlayersPerGame = 2;
 
     public bool CanAddPlayerToGame(string gameId)

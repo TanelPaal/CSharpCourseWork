@@ -60,6 +60,20 @@
 <div id="username"></div>
 <h2>@Model.GameState?._nextMoveBy's turn</h2>
 
+<form method="post" id="actionForm" onsubmit="leaveGame()">
+    <input type="hidden" name="x" id="x" />
+    <input type="hidden" name="y" id="y" />
+    <input type="hidden" name="oldX" id="oldX" />
+    <input type="hidden" name="oldY" id="oldY" />
+    <input type="hidden" name="action" id="action" />
+    <input type="hidden" name="gameId" id="gameId" value="@Model.GameId" />
+
+
+    <button type="button" class="action-button" onclick="promptCoordinates('place')">Place Piece</button>
+    <button type="button" class="action-button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
+    <button type="button" class="action-button" onclick="movePiece('movePiece')">Move Piece</button>
+    <button type="submit" class="action-button" formaction="/Dashboard">Return to Menu</button>
+</form>
 
 <div class="board">
     @for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
@@ -81,23 +95,23 @@
         }
     }
 </div>
-
-<form method="post" id="actionForm" onsubmit="leaveGame()">
-    <input type="hidden" name="x" id="x" />
-    <input type="hidden" name="y" id="y" />
-    <input type="hidden" name="oldX" id="oldX" />
-    <input type="hidden" name="oldY" id="oldY" />
-    <input type="hidden" name="action" id="action" />
-    <input type="hidden" name="gameId" id="gameId" value="@Model.GameId" />
-
-
-    <button type="button" class="action-button" onclick="promptCoordinates('place')">Place Piece</button>
-    <button type="button" class="action-button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
-    <button type="button" class="action-button" onclick="movePiece('movePiece')">Move Piece</button>
-    <button type="submit" class="action-button" formaction="/Dashboard">Return to Menu</button>
-</form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
 
 <script>
+    
+    function getQueryParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+    var storedPiece
+    // Get the username from the URL query parameters
+    var username = getQueryParameter('username');
+
+    if (storedPiece) {
+        document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${storedPiece}!</h2>`;
+    }   
+    
+    
     function promptCoordinates(action) {
         var coords = prompt("Enter coordinates (x,y):");
         if (coords) {
@@ -139,56 +153,69 @@
             });
         }
     }
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
-<script>
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("/gameHub")
         .build();
 
-    const storedPiece = sessionStorage.getItem('userSide');
-    if (storedPiece) {
-        document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${storedPiece}!</h2>`;
-    }
 
-    const username = sessionStorage.getItem('username')
+    //const username = sessionStorage.getItem('username')
     document.getElementById("username").innerHTML = `<h2>Username: ${username}!</h2>`;
-    
+
 
     connection.on("Error", function (message) {
         alert(message);
     });
 
-    connection.on("ReceiveGameStateUpdate", function () {
-        // Refresh the page when a game state update is received
-        console.log("requested refresh");
-        alert("hi i am whating2")
-        location.reload();
-    });
-
-    connection.on("ReceiveAssignedPiece", function (piece) {
-        console.log("You have been assigned the " + piece + " pieces.");
-        alert("hi i am workijng")
-        sessionStorage.setItem('userSide', piece);
-    });
-    
-    
 
     connection.start().then(function () {
         const gameId = "@Model.GameId";
-        const username = sessionStorage.getItem('username');
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        //const username = storedUser.username
         const joinedGames = JSON.parse(sessionStorage.getItem("joinedGames") || "{}");
 
-        if (!joinedGames[gameId]) {
+        if (performance.navigation.type !== performance.navigation.TYPE_RELOAD && !joinedGames[gameId]) {
             connection.invoke("JoinGame", gameId, username).then(() => {
                 joinedGames[gameId] = true;
                 console.log("joined the game and likely added to grou")
+
                 sessionStorage.setItem("joinedGames", JSON.stringify(joinedGames));
+                const user = {name: username, piece: "x", joinedGames: joinedGames};
+                localStorage.setItem('user', JSON.stringify(user));
             }).catch(function (err) {
                 return console.error(err.toString());
             });
         }
+                   
+        @*// Tomorrow's clue        
+        const gameSessions = @Html.Raw(Json.Serialize(Model._gameService._gameSessions));
+        console.log(gameSessions);
+        $1$//var players = @Model._gameService._gameSessions[Model.GameId]#1#
+        console.log(players)*@
+
+        var player = players[username]
+        storedPiece = player.Piece
         console.log("@Model!.GameState!._nextMoveBy")
+    });
+
+
+    connection.on("ReceiveGameStateUpdate", function () {
+        // Refresh the page when a game state update is received
+        console.log("requested refresh");
+        //alert("This is second refresh")
+
+        setTimeout(function () {
+            location.reload(); // Refresh the page after 3 seconds
+        }, 3000);
+    });
+
+    connection.on("ReceiveAssignedPiece", function (piece) {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        localStorage.setItem('user', JSON.stringify(user));
+        sessionStorage.setItem('userSide', piece);
+        console.log("You have been assigned the " + piece + " pieces.");
+        //alert("you have been assigned "+ piece)
+        sessionStorage.setItem('userSide', piece);
+
         console.log(sessionStorage.getItem('userSide'))
         const isUserTurn = "@Model!.GameState!._nextMoveBy" == sessionStorage.getItem('userSide');
         const buttons = document.querySelectorAll("button[type='button']");
@@ -200,10 +227,10 @@
 
     window.onbeforeunload = function () {
         const gameId = "@Model.GameId";
-        const username = sessionStorage.getItem('username');
+        //const username = sessionStorage.getItem('username');
         const joinedGames = JSON.parse(sessionStorage.getItem("joinedGames") || "{}");
-
-        if (performance.navigation.type !== performance.navigation.TYPE_RELOAD && joinedGames[gameId]) {
+        //&& joinedGames[gameId]
+        if (performance.navigation.type !== performance.navigation.TYPE_RELOAD && joinedGames[gameId] ) {
             connection.invoke("LeaveGame", gameId, username).then(() => {
                 delete joinedGames[gameId];
                 sessionStorage.setItem("joinedGames", JSON.stringify(joinedGames));

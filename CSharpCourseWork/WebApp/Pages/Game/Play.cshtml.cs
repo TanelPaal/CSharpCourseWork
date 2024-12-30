@@ -1,6 +1,7 @@
 ﻿using ConsoleApp;
 using DAL;
 using GameBrain;
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.SignalR;
@@ -15,15 +16,25 @@ public class Play : PageModel
     private readonly IHubContext<GameHub> _hubContext;
     private TicTacTwoBrain? _gameBrain { get; set; }
 
-    
+    //now that we have the username client side we can have a table on the server with all the users data
+    //we can then fetch that data from the server using @Model.data or w/e then use the username as the index
+    //tomorrow access all the players data from the _gameService and put it into a table. then when the user refreshes
+    //he can reference the data from the server.
+
+
     public string GameId = "";
-    public Play(IGameRepository gameRepository, IHubContext<GameHub> hubContext)
+    public Play(IGameRepository gameRepository, IHubContext<GameHub> hubContext, GameService gameService)
     {
         _gameRepository = gameRepository;
         _hubContext = hubContext;
-    }
+        _gameService = gameService;
 
+
+    }
+    public GameService _gameService { get; set; }
     public GameState? GameState { get; set; }
+
+    public ConcurrentDictionary<string, Player>? Players { get; set; }
     
     public bool IsMovableGrid(int x, int y)
     {
@@ -37,19 +48,20 @@ public class Play : PageModel
     }
     
     
-    public async void OnGetAsync(string gameId)
+    public async Task OnGetAsync(string gameId)
     {
         GameId = gameId;
         GameState = _gameRepository.GetSaveById(int.Parse(gameId));
         _gameBrain = new TicTacTwoBrain(GameState);
     }
 
-    public async Task<IActionResult> OnPostAsync(string gameId, int x, int y, int oldX, int oldY, string action)
+    public async void OnPost(string gameId, int x, int y, int oldX, int oldY, string action)
     {
         GameId = gameId;
         GameState = _gameRepository.GetSaveById(int.Parse(gameId));
         _gameBrain = new TicTacTwoBrain(GameState);
         var tempGameBrain = _gameBrain;
+
         
         int[,] output = new int[4, 2];
 
@@ -88,7 +100,5 @@ public class Play : PageModel
                 await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate");
                 break;
         }
-
-        return Page();
     }
 }

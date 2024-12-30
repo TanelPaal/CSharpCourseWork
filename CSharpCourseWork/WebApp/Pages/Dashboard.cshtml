@@ -11,12 +11,22 @@
 <div class="dashboard">
     <h1 class="menu-title">Welcome to Dashboard</h1>
     <p>
-        <a class="btn" asp-page="/Game/Create">New Game</a>
+        <a class="btn" id="create" asp-page="/Game/Create">New Game</a>
     </p>
     <p>
-        <a class="btn" asp-page="/Games/Join">Join a game</a>
-    </p>
-    <p>
-        <a class="btn" asp-page="/Game/ListGames">Existing games</a>
+        <a class="btn" id="listgames"  asp-page="/Game/ListGames">Existing games</a>
     </p>
 </div>
+
+<script>
+    function getQueryParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+    // Get the username from the URL query parameters
+    const username = getQueryParameter('username');
+    console.log(username)
+    document.getElementById("create").href = `/Game/Create?username=${encodeURIComponent(username)}`;
+    document.getElementById("listgames").href = `/Game/ListGames?username=${encodeURIComponent(username)}`;
+</script>

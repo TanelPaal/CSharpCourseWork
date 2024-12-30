@@ -7,9 +7,9 @@ namespace WebApp.Pages;
 public class IndexModel : PageModel
 {
     private readonly UserService _userService;
-    
+
     public string ErrorMessage { get; private set; } = "";
-    
+
     public IndexModel(UserService userService)
     {
         _userService = userService;
@@ -41,7 +41,7 @@ public class IndexModel : PageModel
                     _userService.AddUser(username);
 
                     HttpContext.Session.SetString("Username", username);
-                    return RedirectToPage("./Dashboard");
+                    return Redirect($"/Dashboard?username={username}");
                 }
             default:
                 return Page();
