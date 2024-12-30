@@ -202,10 +202,10 @@
         // Refresh the page when a game state update is received
         console.log("requested refresh");
         //alert("This is second refresh")
-
-        setTimeout(function () {
+        location.reload();
+        @*setTimeout(function () {
             location.reload(); // Refresh the page after 3 seconds
-        }, 3000);
+        }, 3000);*@
     });
 
     connection.on("ReceiveAssignedPiece", function (piece) {

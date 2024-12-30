@@ -34,6 +34,7 @@ namespace WebApp.Hubs
                 await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
                 await Clients.Caller.SendAsync("ReceiveAssignedPiece", player.Piece);
                 await Clients.Group(gameId).SendAsync("ReceiveGameStateUpdate");
+                
                 Console.WriteLine("added " + username + " to game "+ gameId);
             }
             else
