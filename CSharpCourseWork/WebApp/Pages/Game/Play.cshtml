@@ -12,6 +12,25 @@
 <head>
     <title>Play Game</title>
     <style>
+        .action-button {
+            background-color: #4CAF50; /* Green background */
+        border: none; /* Remove borders */
+            color: white; /* White text */
+        padding: 15px 32px; /* Some padding */
+        text-align: center; /* Centered text */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Make the buttons appear side by side */
+            font-size: 16px; /* Increase font size */
+            margin: 4px 2px; /* Some margin */
+            cursor: pointer; /* Pointer/hand icon */
+            border-radius: 12px; /* Rounded corners */
+            transition-duration: 0.4s; /* Transition effect */
+        }
+        .action-button:hover {
+            background-color: white; /* White background on hover */
+            color: black; /* Black text on hover */
+            border: 2px solid #4CAF50; /* Green border on hover */
+        }
         .board {
             display: grid;
             grid-template-columns: repeat(@(Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3), 50px);
@@ -35,10 +54,12 @@
     }
     </style>
 </head>
-<body>
 <h1>Play Game</h1>
-
+<label id="gameId"> Game ID: @Model.GameId</label><br />
+<div id="userSide"></div>
+<div id="username"></div>
 <h2>@Model.GameState?._nextMoveBy's turn</h2>
+
 
 <div class="board">
     @for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
@@ -54,14 +75,14 @@
             {
                 cellClass += " movable-grid";
             }
-            <div class="@cellClass" onclick="makeMove(@x, @y)">
+            <div class="@cellClass">
                 @Model.GameState?.GameBoard[x][y]
             </div>
         }
     }
 </div>
 
-<form method="post" id="actionForm">
+<form method="post" id="actionForm" onsubmit="leaveGame()">
     <input type="hidden" name="x" id="x" />
     <input type="hidden" name="y" id="y" />
     <input type="hidden" name="oldX" id="oldX" />
@@ -70,10 +91,10 @@
     <input type="hidden" name="gameId" id="gameId" value="@Model.GameId" />
 
 
-    <button type="button" onclick="promptCoordinates('place')">Place Piece</button>
-    <button type="button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
-    <button type="button" onclick="movePiece('movePiece')">Move Piece</button>
-    <button type="submit" formaction="/Dashboard">Return to Menu</button>
+    <button type="button" class="action-button" onclick="promptCoordinates('place')">Place Piece</button>
+    <button type="button" class="action-button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
+    <button type="button" class="action-button" onclick="movePiece('movePiece')">Move Piece</button>
+    <button type="submit" class="action-button" formaction="/Dashboard">Return to Menu</button>
 </form>
 
 <script>
@@ -86,7 +107,6 @@
             setAction(action);
         }
     }
-    
     function movePiece() {
         var oldCoords = prompt("Enter old coordinates (x,y):");
         var newCoords = prompt("Enter new coordinates (x,y):");
@@ -104,6 +124,21 @@
         document.getElementById('action').value = action;
         document.getElementById('actionForm').submit();
     }
+    function leaveGame() {
+        const gameId = "@Model.GameId";
+        const username = sessionStorage.getItem('username');
+        const joinedGames = JSON.parse(sessionStorage.getItem("joinedGames") || "{}");
+
+        if (joinedGames[gameId]) {
+            connection.invoke("LeaveGame", gameId, username).then(() => {
+                delete joinedGames[gameId];
+                sessionStorage.setItem("joinedGames", JSON.stringify(joinedGames));
+                sessionStorage.setItem('userSide', null);
+            }).catch(function (err) {
+                console.error(err.toString());
+            });
+        }
+    }
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
 <script>
@@ -111,15 +146,14 @@
         .withUrl("/gameHub")
         .build();
 
-    connection.on("UpdateTurn", function (currentTurn) {
-        const username = sessionStorage.getItem("Username");
-        const isUserTurn = currentTurn === username;
-        const buttons = document.querySelectorAll(".action-button");
+    const storedPiece = sessionStorage.getItem('userSide');
+    if (storedPiece) {
+        document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${storedPiece}!</h2>`;
+    }
 
-        buttons.forEach(function (button) {
-            button.disabled = !isUserTurn;
-        });
-    });
+    const username = sessionStorage.getItem('username')
+    document.getElementById("username").innerHTML = `<h2>Username: ${username}!</h2>`;
+    
 
     connection.on("Error", function (message) {
         alert(message);
@@ -127,34 +161,53 @@
 
     connection.on("ReceiveGameStateUpdate", function () {
         // Refresh the page when a game state update is received
+        console.log("requested refresh");
+        alert("hi i am whating2")
         location.reload();
     });
 
+    connection.on("ReceiveAssignedPiece", function (piece) {
+        console.log("You have been assigned the " + piece + " pieces.");
+        alert("hi i am workijng")
+        sessionStorage.setItem('userSide', piece);
+    });
+    
+    
+
     connection.start().then(function () {
         const gameId = "@Model.GameId";
-        const username = sessionStorage.getItem("Username");
+        const username = sessionStorage.getItem('username');
         const joinedGames = JSON.parse(sessionStorage.getItem("joinedGames") || "{}");
 
         if (!joinedGames[gameId]) {
-            console.log(gameId, username);
             connection.invoke("JoinGame", gameId, username).then(() => {
                 joinedGames[gameId] = true;
+                console.log("joined the game and likely added to grou")
                 sessionStorage.setItem("joinedGames", JSON.stringify(joinedGames));
             }).catch(function (err) {
                 return console.error(err.toString());
             });
         }
+        console.log("@Model!.GameState!._nextMoveBy")
+        console.log(sessionStorage.getItem('userSide'))
+        const isUserTurn = "@Model!.GameState!._nextMoveBy" == sessionStorage.getItem('userSide');
+        const buttons = document.querySelectorAll("button[type='button']");
+
+        buttons.forEach(function (button) {
+            button.disabled = !isUserTurn;
+        });
     });
 
     window.onbeforeunload = function () {
         const gameId = "@Model.GameId";
-        const username = sessionStorage.getItem("Username");
+        const username = sessionStorage.getItem('username');
         const joinedGames = JSON.parse(sessionStorage.getItem("joinedGames") || "{}");
 
-        if (joinedGames[gameId]) {
+        if (performance.navigation.type !== performance.navigation.TYPE_RELOAD && joinedGames[gameId]) {
             connection.invoke("LeaveGame", gameId, username).then(() => {
                 delete joinedGames[gameId];
                 sessionStorage.setItem("joinedGames", JSON.stringify(joinedGames));
+                sessionStorage.setItem('userSide', null);
             }).catch(function (err) {
                 return console.error(err.toString());
             });
@@ -165,7 +218,6 @@
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
-    }
+    };
 </script>
-</body>
 </html>

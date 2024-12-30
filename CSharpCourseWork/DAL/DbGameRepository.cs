@@ -52,7 +52,6 @@ public class DbGameRepository : IGameRepository
     {
         using var context = _contextFactory.CreateDbContext();
         var savedGame = context.SavedGames.FirstOrDefault(g => g.Name == gameSaveName)!;
-        Console.WriteLine(savedGame.Id);
         var gameData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(savedGame.State!)!;
         
         var gameConfiguration = context.GameConfigurations.FirstOrDefault(g => g.Id == savedGame.ConfigurationId)!;

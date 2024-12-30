@@ -113,7 +113,7 @@ public static class GameController
             {
                 return saveName;
             }
-            Console.WriteLine(saveName);
+            //Console.WriteLine(saveName);
             saveGame = _gameRepository.GetSaveByName(saveName);
 
         }

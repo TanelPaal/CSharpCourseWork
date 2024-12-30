@@ -1,31 +1,68 @@
 ﻿using System.Collections.Concurrent;
+using GameBrain;
 
 namespace WebApp.GameServ;
 
+public class Player
+{
+    public string Username { get; set; } = "";
+    public string Piece { get; set; } = "";
+}
+
 public class GameService
 {
-    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, bool>> _gameSessions = new ConcurrentDictionary<string, ConcurrentDictionary<string, bool>>();
+    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, Player>> _gameSessions = new ConcurrentDictionary<string, ConcurrentDictionary<string, Player>>();
     private const int MaxPlayersPerGame = 2;
 
     public bool CanAddPlayerToGame(string gameId)
     {
         if (!_gameSessions.ContainsKey(gameId))
         {
-            _gameSessions[gameId] = new ConcurrentDictionary<string, bool>();
+            _gameSessions[gameId] = new ConcurrentDictionary<string, Player>();
         }
-        Console.WriteLine(_gameSessions[gameId].Count < MaxPlayersPerGame);
         return _gameSessions[gameId].Count < MaxPlayersPerGame;
     }
 
     public bool AddPlayerToGame(string gameId, string username)
     {
-        Console.WriteLine(gameId + " " + username);
+        if (!_gameSessions.ContainsKey(gameId))
+        {
+            _gameSessions[gameId] = new ConcurrentDictionary<string, Player>();
+        }
+
+        if (_gameSessions[gameId].ContainsKey(username))
+        {
+            // Player is rejoining, retain their piece
+            return true;
+        }
+        
         if (CanAddPlayerToGame(gameId))
         {
-            Console.WriteLine(username + " Added to game");
-            return _gameSessions[gameId].TryAdd(username, true);
+
+            var playerCount = _gameSessions[gameId].Count;
+            EGamePiece piece = playerCount == 0 ? EGamePiece.X : EGamePiece.O;
+
+            // Ensure the piece is not already taken
+            if (_gameSessions[gameId].Values.Any(p => p.Piece == ConvertToXO(piece)))
+            {
+                piece = piece == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+            }
+
+            string gamePiece = ConvertToXO(piece);
+            Console.WriteLine(gamePiece + " pieces have been assigned to "+ username);
+            _gameSessions[gameId][username] = new Player { Username = username, Piece = gamePiece };
+            return true;
         }
         return false;
+    }
+
+    public Player GetPlayer(string gameId, string username)
+    {
+        if (_gameSessions.ContainsKey(gameId) && _gameSessions[gameId].ContainsKey(username))
+        {
+            return _gameSessions[gameId][username];
+        }
+        throw new InvalidOperationException("Player not found in the game.");
     }
 
     public void RemovePlayerFromGame(string gameId, string username)
@@ -60,5 +97,15 @@ public class GameService
     public void SetNextTurn(string gameId, string username)
     {
         // Implement logic to set the next turn for the game
+    }
+
+    static string ConvertToXO(EGamePiece number)
+    {
+        return number switch
+        {
+            EGamePiece.X=> "X",
+            EGamePiece.O => "O",
+            _ => throw new ArgumentException("Input must be 1 or 0.")
+        };
     }
 }

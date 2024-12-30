@@ -95,7 +95,7 @@ public class TicTacTwoBrain
             
             GetNextMoveBy();
             
-            Console.WriteLine($"Playable area moved to ({x}, {y}).");
+            //Console.WriteLine($"Playable area moved to ({x}, {y}).");
             return true;
         }
         

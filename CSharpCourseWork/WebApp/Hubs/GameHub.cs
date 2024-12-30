@@ -6,7 +6,7 @@ namespace WebApp.Hubs
 {
     public class GameHub : Hub
     {
-        private readonly GameService _gameService;
+        public readonly GameService _gameService;
 
         public GameHub(GameService gameService)
         {
@@ -15,7 +15,7 @@ namespace WebApp.Hubs
 
         public async Task JoinGame(string gameId, string username)
         {
-            Console.WriteLine(username + "has joined");
+            Console.WriteLine(username + " has joined");
 
             if (string.IsNullOrEmpty(gameId))
             {
@@ -29,8 +29,13 @@ namespace WebApp.Hubs
 
             if (_gameService.AddPlayerToGame(gameId, username))
             {
+                var player = _gameService.GetPlayer(gameId, username);
+
                 await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+                await Clients.Caller.SendAsync("ReceiveAssignedPiece", player.Piece);
                 await Clients.Group(gameId).SendAsync("UpdateTurn", _gameService.GetCurrentTurn(gameId));
+                await Clients.Group(gameId).SendAsync("ReceiveGameStateUpdate");
+                Console.WriteLine("added " + username + " to game "+ gameId);
             }
             else
             {
@@ -42,6 +47,7 @@ namespace WebApp.Hubs
         {
             _gameService.RemovePlayerFromGame(gameId, username);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+            await Clients.Group(gameId).SendAsync("ReceiveGameStateUpdate");
         }
     }
 }

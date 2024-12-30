@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.SignalR;
 using WebApp.Hubs;
+using WebApp.GameServ;
 
 namespace WebApp.Pages.Game;
 
@@ -13,10 +14,9 @@ public class Play : PageModel
     private IGameRepository _gameRepository;
     private readonly IHubContext<GameHub> _hubContext;
     private TicTacTwoBrain? _gameBrain { get; set; }
+
     
     public string GameId = "";
-    public string Username = "";
-
     public Play(IGameRepository gameRepository, IHubContext<GameHub> hubContext)
     {
         _gameRepository = gameRepository;
@@ -37,25 +37,20 @@ public class Play : PageModel
     }
     
     
-    public async Task OnGetAsync(string gameId)
+    public async void OnGetAsync(string gameId)
     {
         GameId = gameId;
         GameState = _gameRepository.GetSaveById(int.Parse(gameId));
         _gameBrain = new TicTacTwoBrain(GameState);
-
-        Username = HttpContext.Session.GetString("Username")!;
-        Console.WriteLine(Username);
     }
 
-    public async void  OnPost(string gameId, int x, int y, int oldX, int oldY, string action)
+    public async Task<IActionResult> OnPostAsync(string gameId, int x, int y, int oldX, int oldY, string action)
     {
         GameId = gameId;
         GameState = _gameRepository.GetSaveById(int.Parse(gameId));
         _gameBrain = new TicTacTwoBrain(GameState);
-        Username = HttpContext.Session.GetString("Username")!;
         var tempGameBrain = _gameBrain;
         
-
         int[,] output = new int[4, 2];
 
         switch (action)
@@ -77,12 +72,11 @@ public class Play : PageModel
                 GameController.ProcessInput((output, true, false), tempGameBrain);
                 _gameBrain = tempGameBrain;
                 _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
+                Console.WriteLine("sending gamestate update to " + GameId);
                 await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate");
-
                 break;
 
             case "movePiece":
-                // Implement logic to move a piece
                 output[0, 0] = 3;
                 output[1, 0] = x;
                 output[1, 1] = y;
@@ -94,5 +88,7 @@ public class Play : PageModel
                 await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate");
                 break;
         }
+
+        return Page();
     }
 }
