@@ -18,27 +18,36 @@ public class DbGameRepository : IGameRepository
     {
         using var context = _contextFactory.CreateDbContext();
         // Check if a saved game with the same name exists
-        var existingSavedGame = context.SavedGames.FirstOrDefault(g => g.Name == gameSaveName);
-    
+        var existingSavedGame = context.SavedGames.FirstOrDefault(g => g.Id == gameState.Id);
+
+        Console.WriteLine(gameState.Id);
         if (existingSavedGame != null)
         {
-            // Delete the existing saved game
-            context.SavedGames.Remove(existingSavedGame);
+            // Update existing game
+            existingSavedGame.State = JsonSerializer.Serialize(gameState);
+            existingSavedGame.ModifiedAt = DateTime.UtcNow;
+            Console.WriteLine("updated state");
+            context.SaveChanges();
         }
-        // Create a new saved game
-        SavedGame dtoSavedGame = new SavedGame
+        else
         {
-            Id = gameState.Id,
-            Name = gameSaveName,
-            State = gameState.ToString(),
-            ConfigurationId = gameState.GameConfiguration.Id,
-            CreatedAt = DateTime.UtcNow,
-            ModifiedAt = DateTime.UtcNow
-        };
-
-        context.SavedGames.Add(dtoSavedGame);
-        context.SaveChanges();
+            Console.WriteLine("generating new savegame");
+            // Create new game
+            var dtoSavedGame = new SavedGame
+            {
+                Id = gameState.Id, // Use the unique ID we generated
+                Name = gameSaveName,
+                State = JsonSerializer.Serialize(gameState),
+                ConfigurationId = gameState.GameConfiguration.Id,
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow
+            };
+        
+            context.SavedGames.Add(dtoSavedGame);
+            context.SaveChanges();
+        }
     }
+
 
     public GameState GetSaveById(int gameId)
     {
@@ -82,7 +91,7 @@ public class DbGameRepository : IGameRepository
             gameData["_oTurnCount"].GetInt32()
         );
         gameState.Id = savedGame.Id;
-
+        Console.WriteLine(gameState.Id);
         
         return gameState;
     }

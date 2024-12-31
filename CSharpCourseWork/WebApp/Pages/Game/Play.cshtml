@@ -56,11 +56,15 @@
 </head>
 <h1>Play Game</h1>
 <label id="gameId"> Game ID: @Model.GameId</label><br />
-<div id="userSide"></div>
+<div id="userSide">
+    <h2>Your Pieces: </h2>
+</div>
+<div id="turnInfo">
+    <h2>Current Turn: </h2>
+</div>
 <div id="username"></div>
-<h2>@Model.GameState?._nextMoveBy's turn</h2>
 
-<form method="post" id="actionForm" onsubmit="leaveGame()">
+<form method="post" id="actionForm">
     <input type="hidden" name="x" id="x" />
     <input type="hidden" name="y" id="y" />
     <input type="hidden" name="oldX" id="oldX" />
@@ -72,8 +76,10 @@
     <button type="button" class="action-button" onclick="promptCoordinates('place')">Place Piece</button>
     <button type="button" class="action-button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
     <button type="button" class="action-button" onclick="movePiece('movePiece')">Move Piece</button>
-    <button type="submit" class="action-button" formaction="/Dashboard">Return to Menu</button>
+    
 </form>
+
+<a type="submit" class="action-button back-button" asp-page="/Dashboard">Return to Menu</a>
 
 <div class="board">
     @for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
@@ -96,21 +102,86 @@
     }
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
-
 <script>
+
+
+
     
     function getQueryParameter(name) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(name);
     }
-    var storedPiece
-    // Get the username from the URL query parameters
+    const gameId = @Model.GameId
     var username = getQueryParameter('username');
+    var gameSession
 
-    if (storedPiece) {
-        document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${storedPiece}!</h2>`;
-    }   
-    
+    const div = document.querySelector('a.back-button')
+    div.href = `/Dashboard?username=${encodeURIComponent(username)}`;
+
+
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl(`/gameHub?gameId=${gameId}&username=${encodeURIComponent(username)}`)
+        .withAutomaticReconnect() // Automatically reconnect on disconnections
+        .build();
+
+
+
+
+    connection.start()
+        .then(() => {
+            console.log("SignalR connection started");
+        })
+        .catch(err => console.error("Error starting connection:", err));
+
+    connection.on("ReceiveGameSessionData", (gameSessions) => {
+        console.log("Received game sessions:", gameSessions);
+        
+        if (gameSessions && gameSessions[gameId] && gameSessions[gameId][username]) {
+            clearInterval(connection.checkIntervalId);
+            gameSession = gameSessions[gameId][username];
+
+            console.log("Game session found:", gameSession);
+            const isUserTurn = "@Model!.GameState!._nextMoveBy" == gameSession.piece;
+            document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${gameSession.piece}!</h2>`;
+            var nextMoveBy = "@Model!.GameState!._nextMoveBy"
+            console.log(nextMoveBy)
+            document.getElementById("turnInfo").innerHTML = `<h2>Current Turn: ${nextMoveBy.toString()}</h2>`;
+            console.log(!isUserTurn)
+            const buttons = document.querySelectorAll("button[type='button']");
+            buttons.forEach(function (button) {
+                button.disabled = !isUserTurn;
+            });
+        } else {
+            console.log("Game session not found in received data");
+        }
+    });
+
+    // Add connection state logging
+    connection.onclose(error => {
+        console.error("Connection closed with error:", error);
+    });
+
+    connection.onreconnecting(error => {
+        console.warn("Connection reconnecting:", error);
+    });
+
+    connection.onreconnected(connectionId => {
+        console.log("Connection reconnected. ConnectionId:", connectionId);
+    });
+
+    if (gameSession != null && gameSession.piece != null) {
+        console.log(gameSession)
+        console.log("logging gamesession");
+        const isUserTurn = "@Model!.GameState!._nextMoveBy" == gameSession.piece;
+        document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${gameSession.piece}!</h2>`;
+        console.log(nextMoveBy)
+
+        const buttons = document.querySelectorAll("button[type='button']");
+        console.log(!isUserTurn)
+        buttons.forEach(function (button) {
+            button.disabled = !isUserTurn;
+        });
+    }
     
     function promptCoordinates(action) {
         var coords = prompt("Enter coordinates (x,y):");
@@ -138,28 +209,33 @@
         document.getElementById('action').value = action;
         document.getElementById('actionForm').submit();
     }
-    function leaveGame() {
-        const gameId = "@Model.GameId";
-        const username = sessionStorage.getItem('username');
-        const joinedGames = JSON.parse(sessionStorage.getItem("joinedGames") || "{}");
-
-        if (joinedGames[gameId]) {
-            connection.invoke("LeaveGame", gameId, username).then(() => {
-                delete joinedGames[gameId];
-                sessionStorage.setItem("joinedGames", JSON.stringify(joinedGames));
-                sessionStorage.setItem('userSide', null);
-            }).catch(function (err) {
-                console.error(err.toString());
-            });
+    
+    const form = document.getElementById('actionForm');
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData(form);
+        const response = await fetch(window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            }
+        });
+        
+        if (response.ok) {
+            // Let SignalR handle the update instead of reloading
+            console.log("Move successful");
+        } else {
+            console.error("Error making move");
         }
-    }
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl("/gameHub")
-        .build();
+
+        form.reset();
+    });
 
 
     //const username = sessionStorage.getItem('username')
-    document.getElementById("username").innerHTML = `<h2>Username: ${username}!</h2>`;
+    document.getElementById("username").innerHTML = `<h2>Username: ${username}</h2>`;
 
 
     connection.on("Error", function (message) {
@@ -167,84 +243,65 @@
     });
 
 
-    connection.start().then(function () {
-        const gameId = "@Model.GameId";
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-        //const username = storedUser.username
-        const joinedGames = JSON.parse(sessionStorage.getItem("joinedGames") || "{}");
-
-        if (performance.navigation.type !== performance.navigation.TYPE_RELOAD && !joinedGames[gameId]) {
-            connection.invoke("JoinGame", gameId, username).then(() => {
-                joinedGames[gameId] = true;
-                console.log("joined the game and likely added to grou")
-
-                sessionStorage.setItem("joinedGames", JSON.stringify(joinedGames));
-                const user = {name: username, piece: "x", joinedGames: joinedGames};
-                localStorage.setItem('user', JSON.stringify(user));
-            }).catch(function (err) {
-                return console.error(err.toString());
-            });
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+    
+    connection.on("ReceiveGameStateUpdate", async function (gameState) {
+        console.log("refreshing page")
+        try {
+            // Fetch the latest game state
+            const response = await fetch(window.location.href);
+            const html = await response.text();
+            
+            // Create a temporary container
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = html;
+            
+            // Update the game board
+            const newBoard = tempContainer.querySelector('.board');
+            const currentBoard = document.querySelector('.board');
+            if (newBoard && currentBoard) {
+                currentBoard.innerHTML = newBoard.innerHTML;
+            }
+            
+            // Update turn information
+            const newTurnInfo = tempContainer.querySelector('h2');
+            const currentTurnInfo = document.querySelector('h2');
+            if (newTurnInfo && currentTurnInfo) {
+                currentTurnInfo.textContent = newTurnInfo.textContent;
+            }
+            
+            
+            // Update button states based on whose turn it is
+            if (gameSession && gameSession.piece) {
+                const isUserTurn = convertToXO(gameState._nextMoveBy) === gameSession.piece;
+                document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${gameSession.piece}</h2>`;
+                console.log(convertToXO(gameState._nextMoveBy))
+                document.getElementById("turnInfo").innerHTML = `<h2>Current Turn: ${convertToXO(gameState._nextMoveBy)}</h2>`;
+            
+                const buttons = document.querySelectorAll("button[type='button']");
+                
+                console.log(!isUserTurn)
+                buttons.forEach(function (button) {
+                    button.disabled = !isUserTurn;
+                });
+            }
+        } catch (error) {
+            console.error("Error updating game state:", error);
         }
-                   
-        @*// Tomorrow's clue        
-        const gameSessions = @Html.Raw(Json.Serialize(Model._gameService._gameSessions));
-        console.log(gameSessions);
-        $1$//var players = @Model._gameService._gameSessions[Model.GameId]#1#
-        console.log(players)*@
-
-        var player = players[username]
-        storedPiece = player.Piece
-        console.log("@Model!.GameState!._nextMoveBy")
     });
-
-
-    connection.on("ReceiveGameStateUpdate", function () {
-        // Refresh the page when a game state update is received
-        console.log("requested refresh");
-        //alert("This is second refresh")
-        location.reload();
-        @*setTimeout(function () {
-            location.reload(); // Refresh the page after 3 seconds
-        }, 3000);*@
-    });
-
-    connection.on("ReceiveAssignedPiece", function (piece) {
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-        localStorage.setItem('user', JSON.stringify(user));
-        sessionStorage.setItem('userSide', piece);
-        console.log("You have been assigned the " + piece + " pieces.");
-        //alert("you have been assigned "+ piece)
-        sessionStorage.setItem('userSide', piece);
-
-        console.log(sessionStorage.getItem('userSide'))
-        const isUserTurn = "@Model!.GameState!._nextMoveBy" == sessionStorage.getItem('userSide');
-        const buttons = document.querySelectorAll("button[type='button']");
-
-        buttons.forEach(function (button) {
-            button.disabled = !isUserTurn;
-        });
-    });
-
-    window.onbeforeunload = function () {
-        const gameId = "@Model.GameId";
-        //const username = sessionStorage.getItem('username');
-        const joinedGames = JSON.parse(sessionStorage.getItem("joinedGames") || "{}");
-        //&& joinedGames[gameId]
-        if (performance.navigation.type !== performance.navigation.TYPE_RELOAD && joinedGames[gameId] ) {
-            connection.invoke("LeaveGame", gameId, username).then(() => {
-                delete joinedGames[gameId];
-                sessionStorage.setItem("joinedGames", JSON.stringify(joinedGames));
-                sessionStorage.setItem('userSide', null);
-            }).catch(function (err) {
-                return console.error(err.toString());
-            });
+    // Helper function to convert enum values to X/O
+    function convertToXO(value) {
+        switch (value) {
+            case 1:
+                return "X";
+            case 2:
+                return "O";
+            default:
+                return "";
         }
-    };
+    }
 
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-    };
 </script>
 </html>

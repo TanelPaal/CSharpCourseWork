@@ -6,8 +6,10 @@ using System.Text.Json;
 
 public class GameState
 {
+    private static readonly Random _random = new Random();
 
-    public int Id { get; set; } = default!;
+
+    public int Id { get; set; }
     public EGamePiece[][] GameBoard { get; set; }
     public EGamePiece _nextMoveBy { get; set; } = EGamePiece.X;
     public int[] _gameArea { get; set; }
@@ -19,6 +21,7 @@ public class GameState
 
     public GameState(EGamePiece[][] gameBoard, GameConfiguration gameConfiguration, int[] gameArea, EGamePiece nextMoveBy, int xTurnCount, int oTurnCount)
     {
+        Id = _random.Next(1, 1000000); // Generate random ID between 1 and 999999
         GameBoard = gameBoard;
         GameConfiguration = gameConfiguration;
         _gameArea = gameArea;

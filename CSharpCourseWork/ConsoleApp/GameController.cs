@@ -137,21 +137,23 @@ public static class GameController
         return Console.ReadLine()!;
     }
 
-    public static void ProcessInput((int[,] output, bool success, bool hasSecondCoords) result,
+    public static string ProcessInput((int[,] output, bool success, bool hasSecondCoords) result,
         TicTacTwoBrain gameInstance)
     {
         if (!result.success)
         {
             Console.WriteLine("Invalid input.");
-            return;
+            return "Invalid input.";
         }
         
         int instruction = result.output[0, 0];
         
         if (instruction == 'E') // Exit Method
         {
+
             Console.WriteLine("Exiting the game...");
             Environment.Exit(0);
+            return "success";
         }
         
         int firstX = result.output[1, 0];
@@ -163,6 +165,11 @@ public static class GameController
             {
                 ConsoleUI.Visualizer.DrawBoard(gameInstance);
                 Console.WriteLine("Game Over!");
+                return "success";
+            }
+            else
+            {
+                return "Error";
             }
         }
         else if (instruction == 2)
@@ -171,14 +178,28 @@ public static class GameController
             {
                 var movedGrid = gameInstance._gameState._gameArea;
                 Console.WriteLine($"Playable area moved to ({movedGrid[0]}, {movedGrid[1]})");
+                return "success";
+            }
+            else
+            {
+                return "Failed to move the playable area";
             }
         }
         else if (instruction == 3 && result.hasSecondCoords)
         {
             int secondX = result.output[2, 0];
             int secondY = result.output[2, 1];
-            gameInstance.MoveExistingPiece(firstX, firstY, secondX, secondY);
+            if (gameInstance.MoveExistingPiece(firstX, firstY, secondX, secondY))
+            {
+                return "success";
+            }
+            else
+            {
+                return "Failed to move the piece";
+            }
         }
+
+        return "fuck knows";
     }
     
     private static (int[,] output, bool success, bool hasSecondCoords) RegexValidate(string input)

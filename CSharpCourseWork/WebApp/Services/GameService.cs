@@ -11,9 +11,23 @@ public class Player
 
 public class GameService
 {
-    public readonly ConcurrentDictionary<string, ConcurrentDictionary<string, Player>> _gameSessions = new ConcurrentDictionary<string, ConcurrentDictionary<string, Player>>();
+    public ConcurrentDictionary<string, ConcurrentDictionary<string, Player>> _gameSessions = new ConcurrentDictionary<string, ConcurrentDictionary<string, Player>>();
     private const int MaxPlayersPerGame = 2;
 
+    
+    public async Task EndGame(string gameId)
+    {
+        if (_gameSessions.ContainsKey(gameId))
+        {
+            // Clear all players from the game
+            _gameSessions[gameId].Clear();
+            
+            // Remove the game session entirely
+            _gameSessions.TryRemove(gameId, out _);
+            
+            Console.WriteLine($"Game {gameId} has been ended and removed from active sessions");
+        }
+    }
     public bool CanAddPlayerToGame(string gameId)
     {
         if (!_gameSessions.ContainsKey(gameId))
@@ -30,26 +44,32 @@ public class GameService
             _gameSessions[gameId] = new ConcurrentDictionary<string, Player>();
         }
 
+        // If player is already in the game, just return true
         if (_gameSessions[gameId].ContainsKey(username))
         {
-            // Player is rejoining, retain their piece
             return true;
         }
         
         if (CanAddPlayerToGame(gameId))
         {
+            var existingPieces = _gameSessions[gameId].Values
+                .Select(p => p.Piece)
+                .ToList();
 
-            var playerCount = _gameSessions[gameId].Count;
-            EGamePiece piece = playerCount == 0 ? EGamePiece.X : EGamePiece.O;
-
-            // Ensure the piece is not already taken
-            if (_gameSessions[gameId].Values.Any(p => p.Piece == ConvertToXO(piece)))
+            string gamePiece;
+            if (!existingPieces.Contains("X"))
             {
-                piece = piece == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+                gamePiece = "X";
+            }
+            else if (!existingPieces.Contains("O"))
+            {
+                gamePiece = "O";
+            }
+            else
+            {
+                return false;
             }
 
-            string gamePiece = ConvertToXO(piece);
-            Console.WriteLine(gamePiece + " pieces have been assigned to "+ username);
             _gameSessions[gameId][username] = new Player { Username = username, Piece = gamePiece };
             return true;
         }
@@ -69,7 +89,8 @@ public class GameService
     {
         if (_gameSessions.ContainsKey(gameId))
         {
-            _gameSessions[gameId].TryRemove(username, out _);
+            var test = _gameSessions[gameId].Remove(username, out _);
+            Console.WriteLine("we have "+ test + " to remove the player from the game");
         }
     }
 

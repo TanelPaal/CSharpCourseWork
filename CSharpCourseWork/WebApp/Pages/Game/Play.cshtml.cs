@@ -28,11 +28,11 @@ public class Play : PageModel
         _gameRepository = gameRepository;
         _hubContext = hubContext;
         _gameService = gameService;
-
-
     }
+    
     public GameService _gameService { get; set; }
     public GameState? GameState { get; set; }
+    public string GameError { get; set; } = "";
 
     public ConcurrentDictionary<string, Player>? Players { get; set; }
     
@@ -47,7 +47,6 @@ public class Play : PageModel
         return _gameBrain!.IsInsidePlayableArea(x, y);
     }
     
-    
     public async Task OnGetAsync(string gameId)
     {
         GameId = gameId;
@@ -55,13 +54,31 @@ public class Play : PageModel
         _gameBrain = new TicTacTwoBrain(GameState);
     }
 
-    public async void OnPost(string gameId, int x, int y, int oldX, int oldY, string action)
+    public async Task<IActionResult> OnPostAsync(string gameId, int x, int y, int oldX, int oldY, string action)
     {
         GameId = gameId;
         GameState = _gameRepository.GetSaveById(int.Parse(gameId));
         _gameBrain = new TicTacTwoBrain(GameState);
         var tempGameBrain = _gameBrain;
-
+        Console.WriteLine(_gameService._gameSessions.Count);
+        
+        
+        // Get the current player's piece before making any moves
+        Console.WriteLine(gameId + HttpContext.Request.Query["username"]);
+        var currentPlayer = _gameService.GetPlayer(gameId, HttpContext.Request.Query["username"]);
+        if (currentPlayer == null || currentPlayer.Piece != GameState._nextMoveBy.ToString())
+        {
+            GameError = "Not your turn!";
+            Console.WriteLine("tried resubmitting");
+            await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate", _gameBrain._gameState);
+            
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                // Return JSON response for AJAX requests
+                return new JsonResult(new { success = true, gameState = GameState });
+            }
+            return RedirectToPage("./Play", new { gameId = GameId, username = HttpContext.Request.Query["username"] });
+        }
         
         int[,] output = new int[4, 2];
 
@@ -74,18 +91,27 @@ public class Play : PageModel
                 GameController.ProcessInput((output, true, false), tempGameBrain);
                 _gameBrain = tempGameBrain;
                 _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
-                await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate");
+                await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate", _gameBrain._gameState);
+                Console.WriteLine("requesting clients to reload");
                 break;
 
             case "moveGrid":
                 output[0, 0] = 2;
                 output[1, 0] = x;
                 output[1, 1] = y;
-                GameController.ProcessInput((output, true, false), tempGameBrain);
-                _gameBrain = tempGameBrain;
-                _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
-                Console.WriteLine("sending gamestate update to " + GameId);
-                await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate");
+                var inputResult = GameController.ProcessInput((output, true, false), tempGameBrain);
+                if (inputResult == "success")
+                {
+                    _gameBrain = tempGameBrain;
+                    _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
+                    Console.WriteLine("sending gamestate update to " + GameId);
+                    await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate", _gameBrain._gameState);
+                }
+                else
+                {
+                    GameError = inputResult;
+                }
+
                 break;
 
             case "movePiece":
@@ -97,8 +123,16 @@ public class Play : PageModel
                 GameController.ProcessInput((output, true, true), tempGameBrain);
                 _gameBrain = tempGameBrain;
                 _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
-                await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate");
+                await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate", _gameBrain._gameState);
                 break;
         }
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            // Return JSON response for AJAX requests
+            return new JsonResult(new { success = true, gameState = GameState });
+        }
+
+        return RedirectToPage("./Play", new { gameId = GameId, username = HttpContext.Request.Query["username"] });
     }
 }

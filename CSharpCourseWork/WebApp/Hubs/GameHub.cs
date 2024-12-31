@@ -13,41 +13,60 @@ namespace WebApp.Hubs
             _gameService = gameService;
         }
 
-        public async Task JoinGame(string gameId, string username)
+        private Dictionary<string, string> ConnectionUsernames = new();
+
+        public override async Task OnConnectedAsync()
         {
-            Console.WriteLine(username + " has joined");
+            await Task.Delay(500);
 
-            if (string.IsNullOrEmpty(gameId))
+            var httpContext = Context.GetHttpContext();
+            var gameId = httpContext?.Request.Query["gameId"];
+            var username = httpContext?.Request.Query["username"];
+
+            if (!string.IsNullOrEmpty(gameId) && !string.IsNullOrEmpty(username))
             {
-                throw new ArgumentNullException(nameof(gameId), "Game ID cannot be null or empty.");
+                // Check if the player already exists in the game
+                var existingPlayer = _gameService.IsPlayerInGame(gameId, username);
+
+                if (existingPlayer || _gameService.AddPlayerToGame(gameId, username))
+                {
+                    ConnectionUsernames[Context.ConnectionId] = username;
+                    await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
+                    Console.WriteLine(
+                        $"Connection {Context.ConnectionId} for user {username} added/reconnected to group {gameId}");
+                    var sessions = _gameService._gameSessions;
+                    await Clients.Caller.SendAsync("ReceiveGameSessionData", sessions);
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        "Unable to join the game. The game might be full or an error occurred.");
+                }
             }
 
-            if (string.IsNullOrEmpty(username))
-            {
-                throw new ArgumentNullException(nameof(username), "Username cannot be null or empty.");
-            }
-
-            if (_gameService.AddPlayerToGame(gameId, username))
-            {
-                var player = _gameService.GetPlayer(gameId, username);
-                
-                await Groups.AddToGroupAsync(Context.ConnectionId, gameId);
-                await Clients.Caller.SendAsync("ReceiveAssignedPiece", player.Piece);
-                await Clients.Group(gameId).SendAsync("ReceiveGameStateUpdate");
-                
-                Console.WriteLine("added " + username + " to game "+ gameId);
-            }
-            else
-            {
-                throw new InvalidOperationException("Unable to join the game. The game might be full or an error occurred.");
-            }
+            await base.OnConnectedAsync();
         }
 
-        public async Task LeaveGame(string gameId, string username)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            _gameService.RemovePlayerFromGame(gameId, username);
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
-            await Clients.Group(gameId).SendAsync("ReceiveGameStateUpdate");
+            await Task.Delay(500);
+
+            var httpContext = Context.GetHttpContext();
+            var gameId = httpContext?.Request.Query["gameId"];
+            var username = httpContext?.Request.Query["username"];
+
+            // Don't remove the player immediately
+            // Instead, wait for a short period to see if they reconnect
+            if (!string.IsNullOrEmpty(gameId))
+            {
+                // Store the disconnection time
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, gameId);
+                Console.WriteLine($"Connection {Context.ConnectionId} temporarily disconnected from group {gameId}");
+            }
+
+            ConnectionUsernames.Remove(Context.ConnectionId);
+
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }
