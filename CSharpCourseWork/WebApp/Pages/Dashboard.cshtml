@@ -8,15 +8,14 @@
 }
 
 
-<div class="dashboard">
+<div class="dashboard-container">
     <h1 class="menu-title">Welcome to Dashboard</h1>
-    <p>
-        <a class="btn" id="create" asp-page="/Game/Create">New Game</a>
-    </p>
-    <p>
-        <a class="btn" id="listgames"  asp-page="/Game/ListGames">Existing games</a>
-    </p>
+    <div class="button-container">
+        <a class="action-button" id="create" asp-page="/Game/Create">New Game</a>
+        <a class="action-button" id="listgames" asp-page="/Game/ListGames">Existing games</a>
+    </div>
 </div>
+
 
 <script>
     function getQueryParameter(name) {
@@ -30,3 +29,54 @@
     document.getElementById("create").href = `/Game/Create?username=${encodeURIComponent(username)}`;
     document.getElementById("listgames").href = `/Game/ListGames?username=${encodeURIComponent(username)}`;
 </script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: var(--bs-body-bg);
+    }
+
+    .dashboard-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+    }
+
+    .menu-title {
+        text-align: center;
+        color: #4CAF50;
+        margin-bottom: 2rem;
+    }
+
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .action-button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition-duration: 0.4s;
+        width: 200px;
+    }
+
+    .action-button:hover {
+        background-color: white;
+        color: black;
+        border: 2px solid #4CAF50;
+    }
+</style>
