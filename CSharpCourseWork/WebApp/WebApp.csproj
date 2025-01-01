@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="Data\" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\ConsoleApp\ConsoleApp.csproj" />
         <ProjectReference Include="..\DAL\DAL.csproj" />
         <ProjectReference Include="..\MenuSystem\MenuSystem.csproj" />

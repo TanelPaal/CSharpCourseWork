@@ -54,7 +54,6 @@ public static class GameController
         return "Game Over";
     }
     
-    
     public static string MainLoop()
     {
         GameState saveGame;

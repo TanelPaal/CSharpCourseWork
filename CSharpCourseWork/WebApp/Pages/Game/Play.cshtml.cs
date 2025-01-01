@@ -16,12 +16,6 @@ public class Play : PageModel
     private readonly IHubContext<GameHub> _hubContext;
     private TicTacTwoBrain? _gameBrain { get; set; }
 
-    //now that we have the username client side we can have a table on the server with all the users data
-    //we can then fetch that data from the server using @Model.data or w/e then use the username as the index
-    //tomorrow access all the players data from the _gameService and put it into a table. then when the user refreshes
-    //he can reference the data from the server.
-
-
     public string GameId = "";
     public Play(IGameRepository gameRepository, IHubContext<GameHub> hubContext, GameService gameService)
     {

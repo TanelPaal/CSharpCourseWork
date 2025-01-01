@@ -7,7 +7,6 @@ public class TicTacTwoBrain
 
     // public int[] GameArea => _gameArea;
     // public int[]  _gameArea { get; set; }
-    
 
     public TicTacTwoBrain(GameState gameState)
     {
@@ -303,6 +302,7 @@ public class TicTacTwoBrain
         return false;
     }
     
+    // Not implemented/ not needed maybe
     public void ResetGame()
     {
         var gameBoard = new EGamePiece[_gameState.GameConfiguration.BoardSizeWidth][];
