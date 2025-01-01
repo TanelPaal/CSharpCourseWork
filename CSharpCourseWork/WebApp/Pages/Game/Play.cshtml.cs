@@ -141,8 +141,71 @@ public class Play : PageModel
                 // Switch to the opposite piece of the player's piece (not the current game piece)
                 var playerPiece = playerMakingMove.Piece == "X" ? EGamePiece.O : EGamePiece.X;
                 _gameBrain._gameState._nextMoveBy = playerPiece;
+                
+                // Randomly choose between different movve types
+                var random = new Random();
+                var moveType = random.Next(3);
+
+                bool moveMade = false;
+
+                switch (moveType)
+                {
+                    case 0: // Place Piece
+                        var randomOpponentMove = _gameBrain.GetRandomValidMove();
+                        if (randomOpponentMove.HasValue)
+                        {
+                            output[0, 0] = 1; // Place piece action
+                            output[1, 0] = randomOpponentMove.Value.x;
+                            output[1, 1] = randomOpponentMove.Value.y;
+                            GameController.ProcessInput((output, true, false), tempGameBrain);
+                            moveMade = true;
+                        }
+                        break;
+                    case 1: // Move Grid
+                        var randomGridMove = _gameBrain.GetRandomGridMove();
+                        if (randomGridMove.HasValue)
+                        {
+                            output[0, 0] = 2; // Move grid action
+                            output[1, 0] = randomGridMove.Value.x;
+                            output[1, 1] = randomGridMove.Value.y;
+                            var result = GameController.ProcessInput((output, true, false), tempGameBrain);
+                            moveMade = result == "success";
+                        }
+                        break;
+                    case 2: // Move Piece
+                        var randomPieceMove = _gameBrain.GetRandomPieceMove();
+                        if (randomPieceMove.HasValue)
+                        {
+                            output[0, 0] = 3; // Move piece action
+                            output[1, 0] = randomPieceMove.Value.newX;
+                            output[1, 1] = randomPieceMove.Value.newY;
+                            output[2, 0] = randomPieceMove.Value.oldX;
+                            output[2, 1] = randomPieceMove.Value.oldY;
+                            GameController.ProcessInput((output, true, true), tempGameBrain);
+                            moveMade = true;
+                        }
+                        break;
+                }
+                
+                // If the chosen move type failed, try placing a piece as fallback
+                if (!moveMade)
+                {
+                    var fallbackMove = _gameBrain.GetRandomValidMove();
+                    if (fallbackMove.HasValue)
+                    {
+                        output[0, 0] = 1; // Place piece action
+                        output[1, 0] = fallbackMove.Value.x;
+                        output[1, 1] = fallbackMove.Value.y;
+                        GameController.ProcessInput((output, true, false), tempGameBrain);
+                    }
+                }
+
+                _gameBrain = tempGameBrain;
+                _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
+                await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate", _gameBrain._gameState);
+                break;
     
-                var randomAIMove = _gameBrain.GetRandomValidMove();
+                /*var randomAIMove = _gameBrain.GetRandomValidMove();
                 if (randomAIMove.HasValue)
                 {
                     output[0, 0] = 1; // Place piece action
@@ -153,7 +216,7 @@ public class Play : PageModel
                     _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
                     await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate", _gameBrain._gameState);
                 }
-                break;
+                break;*/
         }
 
         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")

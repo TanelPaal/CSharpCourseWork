@@ -328,6 +328,79 @@ public class TicTacTwoBrain
         return null;
     }
     
+    public (int x, int y)? GetRandomGridMove()
+    {
+        var random = new Random();
+        var validMoves = new List<(int x, int y)>();
+
+        // Get current grid position
+        int currentX = _gameState._gameArea[0];
+        int currentY = _gameState._gameArea[1];
+
+        // Check all adjacent positions
+        for (int x = currentX - 1; x <= currentX + 1; x++)
+        {
+            for (int y = currentY - 1; y <= currentY + 1; y++)
+            {
+                if (PlayableAreaValidMove(x, y))
+                {
+                    validMoves.Add((x, y));
+                }
+            }
+        }
+
+        // Return random valid move if available
+        if (validMoves.Count > 0)
+        {
+            return validMoves[random.Next(validMoves.Count)];
+        }
+
+        return null;
+    }
+
+    public (int newX, int newY, int oldX, int oldY)? GetRandomPieceMove()
+    {
+        var random = new Random();
+        var validMoves = new List<(int newX, int newY, int oldX, int oldY)>();
+
+        // Only allow piece movement after certain number of moves
+        if (_gameState.GameConfiguration.MovePieceAfterNMoves > 0 &&
+            (_gameState._xTurnCount + _gameState._oTurnCount) < _gameState.GameConfiguration.MovePieceAfterNMoves)
+        {
+            return null;
+        }
+
+        // Find all pieces of the current player
+        for (int x = 0; x < DimX; x++)
+        {
+            for (int y = 0; y < DimY; y++)
+            {
+                if (_gameState.GameBoard[x][y] == _gameState._nextMoveBy)
+                {
+                    // Check all possible destinations
+                    for (int newX = 0; newX < DimX; newX++)
+                    {
+                        for (int newY = 0; newY < DimY; newY++)
+                        {
+                            if (_gameState.GameBoard[newX][newY] == EGamePiece.Empty && 
+                                IsInsidePlayableArea(newX, newY))
+                            {
+                                validMoves.Add((newX, newY, x, y));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (validMoves.Count > 0)
+        {
+            return validMoves[random.Next(validMoves.Count)];
+        }
+
+        return null;
+    }
+    
     // Not implemented/ not needed maybe
     public void ResetGame()
     {

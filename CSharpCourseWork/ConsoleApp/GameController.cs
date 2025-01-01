@@ -156,6 +156,75 @@ public static class GameController
             return "success";
         }
         
+        // Handle AI random move (instruction 4)
+        if (instruction == 4)
+        {
+            var random = new Random();
+            var moveType = random.Next(3); // 0: Place Piece, 1: Move Grid, 2: Move Piece
+            bool moveMade = false;
+
+            switch (moveType)
+            {
+                case 0: // Place Piece
+                    var randomMove = gameInstance.GetRandomValidMove();
+                    if (randomMove.HasValue)
+                    {
+                        if (gameInstance.MakeAMove(randomMove.Value.x, randomMove.Value.y))
+                        {
+                            Console.WriteLine($"AI placed piece at ({randomMove.Value.x}, {randomMove.Value.y})");
+                            moveMade = true;
+                        }
+                    }
+                    break;
+
+                case 1: // Move Grid
+                    var randomGridMove = gameInstance.GetRandomGridMove();
+                    if (randomGridMove.HasValue)
+                    {
+                        if (gameInstance.MovePlayableArea(randomGridMove.Value.x, randomGridMove.Value.y))
+                        {
+                            Console.WriteLine($"AI moved grid to ({randomGridMove.Value.x}, {randomGridMove.Value.y})");
+                            moveMade = true;
+                        }
+                    }
+                    break;
+
+                case 2: // Move Piece
+                    var randomPieceMove = gameInstance.GetRandomPieceMove();
+                    if (randomPieceMove.HasValue)
+                    {
+                        if (gameInstance.MoveExistingPiece(
+                            randomPieceMove.Value.newX, 
+                            randomPieceMove.Value.newY,
+                            randomPieceMove.Value.oldX,
+                            randomPieceMove.Value.oldY))
+                        {
+                            Console.WriteLine($"AI moved piece from ({randomPieceMove.Value.oldX}, {randomPieceMove.Value.oldY}) " +
+                                            $"to ({randomPieceMove.Value.newX}, {randomPieceMove.Value.newY})");
+                            moveMade = true;
+                        }
+                    }
+                    break;
+            }
+
+            // If no move was made, try placing a piece as fallback
+            if (!moveMade)
+            {
+                var fallbackMove = gameInstance.GetRandomValidMove();
+                if (fallbackMove.HasValue)
+                {
+                    gameInstance.MakeAMove(fallbackMove.Value.x, fallbackMove.Value.y);
+                    Console.WriteLine($"AI made fallback move at ({fallbackMove.Value.x}, {fallbackMove.Value.y})");
+                }
+                else
+                {
+                    return "No valid moves available";
+                }
+            }
+
+            return "success";
+        }
+        
         int firstX = result.output[1, 0];
         int firstY = result.output[1, 1];
 
