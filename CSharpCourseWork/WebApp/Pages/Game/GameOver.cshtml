@@ -1,0 +1,84 @@
+﻿@page "{gameId}"
+@model WebApp.Pages.Game.GameOver
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Over</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .game-over-container {
+            text-align: center;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .winner-text {
+            color: #4CAF50;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .loser-text {
+            color: #FF5733;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .action-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition-duration: 0.4s;
+        }
+
+        .action-button:hover {
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-over-container">
+        <h1 class="winner-text">Game Over!</h1>
+        <h2 class="winner-text">Winner: @Model.Winner</h2>
+        <h3 class="loser-text">Loser: @Model.Loser</h3>
+        <a id="returnButton" class="action-button">Return to Dashboard</a>
+    </div>
+
+    <script>
+        function getQueryParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        const username = getQueryParameter('username');
+        document.getElementById("returnButton").href = `/Dashboard?username=${encodeURIComponent(username)}`;
+    </script>
+</body>
+</html>

@@ -272,7 +272,6 @@
                 currentTurnInfo.textContent = newTurnInfo.textContent;
             }
             
-            
             // Update button states based on whose turn it is
             if (gameSession && gameSession.piece) {
                 const isUserTurn = convertToXO(gameState._nextMoveBy) === gameSession.piece;
@@ -286,6 +285,10 @@
                 buttons.forEach(function (button) {
                     button.disabled = !isUserTurn;
                 });
+            }
+            // Check for win condition
+            if (gameState.CheckWinCondition || gameState.IsBoardFull) {
+                window.location.href = `/Game/GameOver/${gameId}?username=${encodeURIComponent(username)}`;
             }
         } catch (error) {
             console.error("Error updating game state:", error);

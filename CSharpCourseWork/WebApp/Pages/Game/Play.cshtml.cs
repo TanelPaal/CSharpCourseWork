@@ -132,6 +132,11 @@ public class Play : PageModel
             // Return JSON response for AJAX requests
             return new JsonResult(new { success = true, gameState = GameState });
         }
+        
+        if (_gameBrain.CheckWinCondition() || _gameBrain.IsBoardFull())
+        {
+            return RedirectToPage("./GameOver", new { gameId = GameId, username = HttpContext.Request.Query["username"] });
+        }
 
         return RedirectToPage("./Play", new { gameId = GameId, username = HttpContext.Request.Query["username"] });
     }
