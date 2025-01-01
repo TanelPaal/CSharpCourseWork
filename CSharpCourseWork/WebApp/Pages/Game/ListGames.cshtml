@@ -14,7 +14,7 @@
             @if (Model.CanJoinGame(gameSave.Id.ToString()))
             {
                 <a class="item redirectroute" asp-page="/Game/Play" asp-route-gameId="@gameSave.Id" data-gameId="@gameSave.Id">
-                    Game ID:@gameSave.Id <br/>Name:@gameSave.GameConfiguration.Name
+                    Game ID:@gameSave.Id <br/>Config Name:@gameSave.GameConfiguration.Name
                 </a>
             }
             else
@@ -25,11 +25,13 @@
     }
 </ul>
 
+<a id="returnButton" class="return-button" href="/Dashboard">Return to Menu</a>
+
 <script>
     function getQueryParameter(name) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
-}
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
 
     // Get the username from the URL query parameters
     const username = getQueryParameter('username');
@@ -41,12 +43,11 @@
         var gameid = div.getAttribute('data-gameId');
         div.href = `/Game/Play/${gameid}?username=${encodeURIComponent(username)}`;
     });
+    
+    // Get username from URL and update return button href
+    document.getElementById("returnButton").href = `/Dashboard?username=${encodeURIComponent(username)}`;
 
 </script>
-
-<form method="get" action="/Dashboard">
-    <button type="submit" class="return-button">Return to Menu</button>
-</form>
 
 <style>
     body {

@@ -82,7 +82,9 @@ public class Create : PageModel
         
         _gameRepository.SaveGame(gameState, GameName);
 
-        return Page();
+        // Get username from query parameter
+        var username = HttpContext.Request.Query["username"].ToString();
+        return RedirectToPage("/Dashboard", new { username = username });
     }
     
 

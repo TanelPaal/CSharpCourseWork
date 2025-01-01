@@ -47,7 +47,8 @@
         
         <div class="button-container">
             <button type="submit" class="action-button">Create Game</button>
-            <a class="action-button return-button" asp-page="/Dashboard">Return to Menu</a>
+            <a id="returnButton" class="action-button return-button" href="/Dashboard">Return to Menu</a>
+
         </div>
     </form>
 
@@ -68,6 +69,15 @@
         document.querySelectorAll('.item').forEach(el => el.classList.remove('selected'));
         button.classList.add('selected');
     }
+    
+    function getQueryParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+    
+    // Get username from URL and update return button href
+    const username = getQueryParameter('username');
+    document.getElementById("returnButton").href = `/Dashboard?username=${encodeURIComponent(username)}`;
 </script>
 
 <style>
