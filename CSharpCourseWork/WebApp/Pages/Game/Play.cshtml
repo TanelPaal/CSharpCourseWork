@@ -286,14 +286,21 @@
                     button.disabled = !isUserTurn;
                 });
             }
-            // Check for win condition
+            // Check for win or tie condition
             if (gameState.CheckWinCondition || gameState.IsBoardFull) {
+                // Both players should be redirected to the game over page
+                console.log("Game over");
                 window.location.href = `/Game/GameOver/${gameId}?username=${encodeURIComponent(username)}`;
             }
         } catch (error) {
             console.error("Error updating game state:", error);
         }
     });
+    
+    connection.on("GameOver", function() {
+        window.location.href = `/Game/GameOver/${gameId}?username=${encodeURIComponent(username)}`;
+    });
+    
     // Helper function to convert enum values to X/O
     function convertToXO(value) {
         switch (value) {

@@ -46,6 +46,11 @@ namespace WebApp.Hubs
 
             await base.OnConnectedAsync();
         }
+        
+        public async Task NotifyGameOver(string gameId)
+        {
+            await Clients.Group(gameId).SendAsync("GameOver");
+        }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {

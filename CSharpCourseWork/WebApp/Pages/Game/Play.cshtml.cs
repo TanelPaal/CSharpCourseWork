@@ -135,6 +135,8 @@ public class Play : PageModel
         
         if (_gameBrain.CheckWinCondition() || _gameBrain.IsBoardFull())
         {
+            // Notify all players in the game about game over
+            await _hubContext.Clients.Group(GameId).SendAsync("GameOver");
             return RedirectToPage("./GameOver", new { gameId = GameId, username = HttpContext.Request.Query["username"] });
         }
 
