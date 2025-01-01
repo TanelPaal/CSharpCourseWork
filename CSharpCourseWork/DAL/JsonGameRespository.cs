@@ -107,4 +107,18 @@ public class JsonGameRespository: IGameRepository
             .ToList();
         //load existing saves
     }
+    
+    public List<GameState> GetAllSavedGames()
+    {
+        var gameNames = GetSaveNames();
+        var gameStates = new List<GameState>();
+    
+        foreach (var gameName in gameNames)
+        {
+            var gameState = GetSaveByName(gameName);
+            gameStates.Add(gameState);
+        }
+    
+        return gameStates;
+    }
 }

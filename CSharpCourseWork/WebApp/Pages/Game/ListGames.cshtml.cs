@@ -22,12 +22,9 @@ public class ListGames : PageModel
 
     public void OnGet()
     {
-        var gameNameList = _gameRepository.GetSaveNames();
-        foreach (var gameName in gameNameList)
-        {
-            var gameSave = _gameRepository.GetSaveByName(gameName);
-            GameSaves.Add(gameSave);
-        }
+        // Get all saved games directly
+        var savedGames = _gameRepository.GetAllSavedGames();
+        GameSaves.AddRange(savedGames);
     }
     public bool CanJoinGame(string gameId)
     {

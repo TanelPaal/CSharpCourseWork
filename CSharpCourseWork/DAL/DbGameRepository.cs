@@ -115,4 +115,41 @@ public class DbGameRepository : IGameRepository
         using var context = _contextFactory.CreateDbContext();
         return context.SavedGames.FirstOrDefault(g => g.Id == gameId);
     }
+    
+    public List<GameState> GetAllSavedGames()
+    {
+        using var context = _contextFactory.CreateDbContext();
+        var savedGames = context.SavedGames.ToList();
+        var gameStates = new List<GameState>();
+    
+        foreach (var savedGame in savedGames)
+        {
+            var gameData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(savedGame.State!)!;
+            var gameConfiguration = context.GameConfigurations.FirstOrDefault(g => g.Id == savedGame.ConfigurationId)!;
+        
+            GameConfiguration DTOConfig = new GameConfiguration(
+                gameConfiguration.Name,
+                gameConfiguration.BoardSizeWidth,
+                gameConfiguration.BoardSizeHeight,
+                gameConfiguration.MovePieceAfterNMoves, 
+                gameConfiguration.PieceLimit
+            );
+            DTOConfig.Id = gameConfiguration.Id;
+        
+            var gameArea = JsonSerializer.Deserialize<int[]>(((JsonElement)gameData["_gameArea"]).GetRawText());
+        
+            var gameState = new GameState(
+                (gameData["GameBoard"]).Deserialize<EGamePiece[][]>(),
+                DTOConfig,
+                gameArea,
+                (EGamePiece)gameData["_nextMoveBy"].GetInt32(),
+                gameData["_xTurnCount"].GetInt32(),
+                gameData["_oTurnCount"].GetInt32()
+            );
+            gameState.Id = savedGame.Id;
+            gameStates.Add(gameState);
+        }
+    
+        return gameStates;
+    }
 }
