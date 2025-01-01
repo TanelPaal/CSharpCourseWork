@@ -60,15 +60,15 @@ public class Play : PageModel
         // Get the current player's piece before making any moves
         Console.WriteLine(gameId + HttpContext.Request.Query["username"]);
         var currentPlayer = _gameService.GetPlayer(gameId, HttpContext.Request.Query["username"]);
-        if (currentPlayer == null || currentPlayer.Piece != GameState._nextMoveBy.ToString())
+        // Only check turn validity if it's not an AI opponent move
+        if (action != "opponentAIMove" && (currentPlayer == null || currentPlayer.Piece != GameState._nextMoveBy.ToString()))
         {
             GameError = "Not your turn!";
             Console.WriteLine("tried resubmitting");
             await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate", _gameBrain._gameState);
-            
+        
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                // Return JSON response for AJAX requests
                 return new JsonResult(new { success = true, gameState = GameState });
             }
             return RedirectToPage("./Play", new { gameId = GameId, username = HttpContext.Request.Query["username"] });
@@ -127,6 +127,27 @@ public class Play : PageModel
                     output[0, 0] = 1; // Place piece action
                     output[1, 0] = randomMove.Value.x;
                     output[1, 1] = randomMove.Value.y;
+                    GameController.ProcessInput((output, true, false), tempGameBrain);
+                    _gameBrain = tempGameBrain;
+                    _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
+                    await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate", _gameBrain._gameState);
+                }
+                break;
+            case "opponentAIMove":
+                // Store the current piece and player's piece
+                var currentPiece = _gameBrain._gameState._nextMoveBy;
+                var playerMakingMove = _gameService.GetPlayer(gameId, HttpContext.Request.Query["username"]);
+    
+                // Switch to the opposite piece of the player's piece (not the current game piece)
+                var playerPiece = playerMakingMove.Piece == "X" ? EGamePiece.O : EGamePiece.X;
+                _gameBrain._gameState._nextMoveBy = playerPiece;
+    
+                var randomAIMove = _gameBrain.GetRandomValidMove();
+                if (randomAIMove.HasValue)
+                {
+                    output[0, 0] = 1; // Place piece action
+                    output[1, 0] = randomAIMove.Value.x;
+                    output[1, 1] = randomAIMove.Value.y;
                     GameController.ProcessInput((output, true, false), tempGameBrain);
                     _gameBrain = tempGameBrain;
                     _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);

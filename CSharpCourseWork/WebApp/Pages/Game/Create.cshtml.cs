@@ -59,7 +59,7 @@ public class Create : PageModel
         }
 
         var config = _configRepository.GetConfigurationByName(SelectedConfiguration);
-        
+
         // Initialize the game board with the correct size
         var gameBoard = new EGamePiece[config.BoardSizeWidth][];
         for (var x = 0; x < gameBoard.Length; x++)
@@ -67,8 +67,10 @@ public class Create : PageModel
             gameBoard[x] = new EGamePiece[config.BoardSizeHeight];
         }
 
-        // Initialize the game area
-        int[] gameArea = new int[config.BoardSizeWidth * config.BoardSizeHeight];
+        // Calculate the center position
+        int centerX = (int)Math.Floor((double)config.BoardSizeWidth / 2);
+        int centerY = (int)Math.Floor((double)config.BoardSizeHeight / 2);
+        int[] gameArea = new[] { centerX, centerY };
 
         var gameState = new GameState(
             gameBoard,

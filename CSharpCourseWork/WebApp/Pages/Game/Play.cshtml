@@ -77,6 +77,7 @@
     <button type="button" class="action-button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
     <button type="button" class="action-button" onclick="movePiece('movePiece')">Move Piece</button>
     <button type="button" class="action-button" onclick="makeRandomMove()">AI Random Move</button>
+    <button type="button" class="action-button" onclick="makeOpponentAIMove()">AI Move for Opponent</button>
     
 </form>
 
@@ -102,6 +103,7 @@
         }
     }
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
 <script>
     function getQueryParameter(name) {
@@ -117,6 +119,11 @@
     
     function makeRandomMove() {
         document.getElementById('action').value = 'randomMove';
+        document.getElementById('actionForm').submit();
+    }
+    
+    function makeOpponentAIMove() {
+        document.getElementById('action').value = 'opponentAIMove';
         document.getElementById('actionForm').submit();
     }
 
@@ -149,7 +156,8 @@
             console.log(nextMoveBy)
             document.getElementById("turnInfo").innerHTML = `<h2>Current Turn: ${nextMoveBy.toString()}</h2>`;
             console.log(!isUserTurn)
-            const buttons = document.querySelectorAll("button[type='button']");
+            const buttons = document.querySelectorAll("button[type='button']:not([onclick*='makeOpponentAIMove'])");
+            console.log(!isUserTurn)
             buttons.forEach(function (button) {
                 button.disabled = !isUserTurn;
             });
@@ -178,7 +186,7 @@
         document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${gameSession.piece}!</h2>`;
         console.log(nextMoveBy)
 
-        const buttons = document.querySelectorAll("button[type='button']");
+        const buttons = document.querySelectorAll("button[type='button']:not([onclick*='makeOpponentAIMove'])");
         console.log(!isUserTurn)
         buttons.forEach(function (button) {
             button.disabled = !isUserTurn;
@@ -281,8 +289,7 @@
                 console.log(convertToXO(gameState._nextMoveBy))
                 document.getElementById("turnInfo").innerHTML = `<h2>Current Turn: ${convertToXO(gameState._nextMoveBy)}</h2>`;
             
-                const buttons = document.querySelectorAll("button[type='button']");
-                
+                const buttons = document.querySelectorAll("button[type='button']:not([onclick*='makeOpponentAIMove'])");
                 console.log(!isUserTurn)
                 buttons.forEach(function (button) {
                     button.disabled = !isUserTurn;
