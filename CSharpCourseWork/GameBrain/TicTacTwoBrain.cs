@@ -302,6 +302,32 @@ public class TicTacTwoBrain
         return false;
     }
     
+    public (int x, int y)? GetRandomValidMove()
+    {
+        var random = new Random();
+        var validMoves = new List<(int x, int y)>();
+
+        // Collect all valid moves
+        for (int x = 0; x < DimX; x++)
+        {
+            for (int y = 0; y < DimY; y++)
+            {
+                if (GameBoard[x][y] == EGamePiece.Empty && IsInsidePlayableArea(x, y))
+                {
+                    validMoves.Add((x, y));
+                }
+            }
+        }
+
+        // Return random valid move if available
+        if (validMoves.Count > 0)
+        {
+            return validMoves[random.Next(validMoves.Count)];
+        }
+
+        return null;
+    }
+    
     // Not implemented/ not needed maybe
     public void ResetGame()
     {

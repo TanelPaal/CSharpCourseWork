@@ -132,6 +132,7 @@ public static class GameController
         Console.WriteLine("<1 x,y> to place a piece,");
         Console.WriteLine("<2 x,y> to move the playable area,");
         Console.WriteLine("<3 newX,newY oldX,oldY> to move a placed piece:");
+        Console.WriteLine("<4> for AI random move");
         Console.WriteLine("E to exit the game or type 'save' to save game:");
         return Console.ReadLine()!;
     }
@@ -206,6 +207,11 @@ public static class GameController
         if (input.Trim().ToUpper() == "E")
         {
             return (new int[1, 1] { { 'E' } }, true, false);
+        }
+        
+        if (input.Trim() == "4")
+        {
+            return (new int[1, 1] { { 4 } }, true, false);
         }
         
         string pattern = @"^(1|2|3)\s+(\d{1,2}),(\d{1,2})(?:\s+(\d{1,2}),(\d{1,2}))?$";

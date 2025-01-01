@@ -76,6 +76,7 @@
     <button type="button" class="action-button" onclick="promptCoordinates('place')">Place Piece</button>
     <button type="button" class="action-button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
     <button type="button" class="action-button" onclick="movePiece('movePiece')">Move Piece</button>
+    <button type="button" class="action-button" onclick="makeRandomMove()">AI Random Move</button>
     
 </form>
 
@@ -103,10 +104,6 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
 <script>
-
-
-
-    
     function getQueryParameter(name) {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get(name);
@@ -117,6 +114,11 @@
 
     const div = document.querySelector('a.back-button')
     div.href = `/Dashboard?username=${encodeURIComponent(username)}`;
+    
+    function makeRandomMove() {
+        document.getElementById('action').value = 'randomMove';
+        document.getElementById('actionForm').submit();
+    }
 
 
     const connection = new signalR.HubConnectionBuilder()
