@@ -76,32 +76,53 @@
     <button type="button" class="action-button" onclick="promptCoordinates('place')">Place Piece</button>
     <button type="button" class="action-button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
     <button type="button" class="action-button" onclick="movePiece('movePiece')">Move Piece</button>
-    <button type="button" class="action-button" onclick="makeRandomMove()">AI Random Move</button>
-    <button type="button" class="action-button" onclick="makeOpponentAIMove()">AI Move for Opponent</button>
+    <button type="button" class="ai-button" onclick="makeRandomMove()">AI Random Move</button>
+    <button type="button" class="ai-button" onclick="makeOpponentAIMove()">AI Move for Opponent</button>
     
 </form>
 
 <a type="submit" class="action-button back-button" asp-page="/Dashboard">Return to Menu</a>
 
-<div class="board">
-    @for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
-    {
-        for (int x = 0; x < (Model.GameState?.GameConfiguration?.BoardSizeWidth ?? 3); x++)
+<div class="board-container">
+    <!-- Column indices -->
+    <div class="indices column-indices">
+        @for (int x = 0; x < (Model.GameState?.GameConfiguration?.BoardSizeWidth ?? 3); x++)
         {
-            var cellClass = "cell";
-            if (Model.GameState?.GameBoard[x][y] == EGamePiece.Empty)
-            {
-                cellClass += " empty";
-            }
-            if (Model.IsMovableGrid(x, y))
-            {
-                cellClass += " movable-grid";
-            }
-            <div class="@cellClass">
-                @Model.GameState?.GameBoard[x][y]
-            </div>
+            <div class="index-cell">@x</div>
         }
-    }
+    </div>
+
+    <div class="board-with-row-indices">
+        <!-- Row indices -->
+        <div class="indices row-indices">
+            @for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
+            {
+                <div class="index-cell">@y</div>
+            }
+        </div>
+
+        <!-- Game board -->
+        <div class="board">
+            @for (int y = 0; y < (Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3); y++)
+            {
+                for (int x = 0; x < (Model.GameState?.GameConfiguration?.BoardSizeWidth ?? 3); x++)
+                {
+                    var cellClass = "cell";
+                    if (Model.GameState?.GameBoard[x][y] == EGamePiece.Empty)
+                    {
+                        cellClass += " empty";
+                    }
+                    if (Model.IsMovableGrid(x, y))
+                    {
+                        cellClass += " movable-grid";
+                    }
+                    <div class="@cellClass">
+                        @Model.GameState?.GameBoard[x][y]
+                    </div>
+                }
+            }
+        </div>
+    </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.11/signalr.min.js"></script>
@@ -324,3 +345,96 @@
 
 </script>
 </html>
+
+<style>
+    .board-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin: 20px;
+    }
+
+    .board-with-row-indices {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .indices {
+        display: flex;
+    }
+
+    .column-indices {
+        margin-left: 60px; /* Align with the board */
+        flex-direction: row;
+        display: grid;
+        grid-template-columns: 50px repeat(@(Model.GameState?.GameConfiguration?.BoardSizeWidth ?? 3), 50px);
+    }
+
+    .row-indices {
+        flex-direction: column;
+        margin-right: 10px;
+    }
+
+    .index-cell {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #666;
+    }
+
+    /* Keep your existing board and cell styles */
+    .board {
+        display: grid;
+        grid-template-columns: repeat(@(Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3), 50px);
+        grid-template-rows: repeat(@(Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3), 50px);
+    }
+
+    .cell {
+        width: 50px;
+        height: 50px;
+        border: 1px solid #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .empty {
+        background-color: rgba(0, 0, 0, 0.1);
+        color: transparent;
+    }
+
+    .movable-grid {
+        background-color: rgba(0, 255, 0, 0.3);
+    }
+    
+    .ai-button {
+        background-color: #6f42c1; /* Purple background */
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition-duration: 0.4s;
+    }
+
+    .ai-button:hover {
+        background-color: white;
+        color: #6f42c1;
+        border: 2px solid #6f42c1;
+    }
+
+    .ai-button:disabled {
+        background-color: #b8a2e3;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+</style>
