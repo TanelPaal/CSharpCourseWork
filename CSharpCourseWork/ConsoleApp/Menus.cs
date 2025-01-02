@@ -38,24 +38,24 @@ public class Menus
     public Menu MainMenu = new Menu(
         EMenuLevel.Main,
         "TIC-TAC-TWO", [
-            new MenuItem()
+            /*new MenuItem()
             {
                 Shortcut = "O",
                 Title = "Options",
                 MenuItemAction = OptionsMenu.Run
-            },
+            },*/
             new MenuItem()
             {
-                Shortcut = "N",
-                Title = "New Game",
+                Shortcut = "S",
+                Title = "Start",
                 MenuItemAction = GameController.MainLoop  // Remove () at the end of MainLoop for it to work.
             },
-            new MenuItem()
+            /*new MenuItem()
             {
                 Shortcut = "L",
                 Title = "Load game",
                 MenuItemAction = SavedGamesLoader.MainLoop
-            }
+            }*/
         ]);
     
     private static string DummyMethod()

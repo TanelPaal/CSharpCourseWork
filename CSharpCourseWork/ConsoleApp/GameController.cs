@@ -378,14 +378,14 @@ public static class GameController
         var configMenuItems = new List<MenuItem>();
         configMenuItems.Add(new MenuItem()
         {
-            Title = "New game",
+            Title = "New Game",
             Shortcut = "N",
             MenuItemAction = () => "NewGame",
         });
         
         configMenuItems.Add(new MenuItem()
         {
-            Title = "Load previous game",
+            Title = "Load Game",
             Shortcut = "L",
             MenuItemAction = () => "LoadGame",
         });

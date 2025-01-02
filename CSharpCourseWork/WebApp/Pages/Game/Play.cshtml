@@ -228,7 +228,7 @@
 
             console.log("Game session found:", gameSession);
             const isUserTurn = "@Model!.GameState!._nextMoveBy" == gameSession.piece;
-            document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${gameSession.piece}!</h2>`;
+            document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${gameSession.piece}</h2>`;
             var nextMoveBy = "@Model!.GameState!._nextMoveBy"
             console.log(nextMoveBy)
             document.getElementById("turnInfo").innerHTML = `<h2>Current Turn: ${nextMoveBy.toString()}</h2>`;
