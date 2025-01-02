@@ -28,13 +28,6 @@ public class Create : PageModel
     [BindProperty]
     public string GameName { get; set; } = string.Empty;
 
-    // Note: The player types are not used in this version of the game.
-    /*[BindProperty]
-    public string PlayerOneType { get; set; } = "Self";
-
-    [BindProperty]
-    public string PlayerTwoType { get; set; } = "Self";*/
-
     public void OnGet()
     {
         // You can load data from a database or other sources here

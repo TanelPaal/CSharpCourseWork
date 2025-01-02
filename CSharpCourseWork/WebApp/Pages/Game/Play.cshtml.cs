@@ -204,19 +204,6 @@ public class Play : PageModel
                 _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
                 await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate", _gameBrain._gameState);
                 break;
-    
-                /*var randomAIMove = _gameBrain.GetRandomValidMove();
-                if (randomAIMove.HasValue)
-                {
-                    output[0, 0] = 1; // Place piece action
-                    output[1, 0] = randomAIMove.Value.x;
-                    output[1, 1] = randomAIMove.Value.y;
-                    GameController.ProcessInput((output, true, false), tempGameBrain);
-                    _gameBrain = tempGameBrain;
-                    _gameRepository.SaveGame(tempGameBrain._gameState, tempGameBrain._gameState.GameConfiguration.Name);
-                    await _hubContext.Clients.Group(GameId).SendAsync("ReceiveGameStateUpdate", _gameBrain._gameState);
-                }
-                break;*/
         }
 
         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")

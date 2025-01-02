@@ -109,17 +109,6 @@ public class GameService
         return 0;
     }
 
-    public string GetCurrentTurn(string gameId)
-    {
-        // Implement logic to get the current turn for the game
-        return string.Empty;
-    }
-
-    public void SetNextTurn(string gameId, string username)
-    {
-        // Implement logic to set the next turn for the game
-    }
-
     static string ConvertToXO(EGamePiece number)
     {
         return number switch

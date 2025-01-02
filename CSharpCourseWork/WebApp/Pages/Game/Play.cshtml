@@ -12,47 +12,108 @@
 <head>
     <title>Play Game</title>
     <style>
-        .action-button {
-            background-color: #4CAF50; /* Green background */
-        border: none; /* Remove borders */
-            color: white; /* White text */
-        padding: 15px 32px; /* Some padding */
-        text-align: center; /* Centered text */
-            text-decoration: none; /* Remove underline */
-            display: inline-block; /* Make the buttons appear side by side */
-            font-size: 16px; /* Increase font size */
-            margin: 4px 2px; /* Some margin */
-            cursor: pointer; /* Pointer/hand icon */
-            border-radius: 12px; /* Rounded corners */
-            transition-duration: 0.4s; /* Transition effect */
-        }
-        .action-button:hover {
-            background-color: white; /* White background on hover */
-            color: black; /* Black text on hover */
-            border: 2px solid #4CAF50; /* Green border on hover */
-        }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(@(Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3), 50px);
-            grid-template-rows: repeat(@(Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3), 50px);
-        }
-        .cell {
-            width: 50px;
-            height: 50px;
-            border: 1px solid #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        .empty {
-            background-color: rgba(0, 0, 0, 0.1); /* Translucent background for empty cells */
-            color: transparent; /* Make text invisible for empty cells */
-        }
-        .movable-grid {
-            background-color: rgba(0, 255, 0, 0.3); /* Light green background for movable grid cells */
+    .action-button {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition-duration: 0.4s;
     }
-    </style>
+    .action-button:hover {
+        background-color: white;
+        color: #4CAF50;
+        border: 2px solid #4CAF50;
+    }
+    .action-button:disabled {
+        background-color: #a2e3a4;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    .board-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin: 20px;
+    }
+    .board-with-row-indices {
+        display: flex;
+        flex-direction: row;
+    }
+    .indices {
+        display: flex;
+    }
+    .column-indices {
+        margin-left: 60px;
+        flex-direction: row;
+        display: grid;
+        grid-template-columns: 50px repeat(@(Model.GameState?.GameConfiguration?.BoardSizeWidth ?? 3), 50px);
+    }
+    .row-indices {
+        flex-direction: column;
+        margin-right: 10px;
+    }
+    .index-cell {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #666;
+    }
+    .board {
+        display: grid;
+        grid-template-columns: repeat(@(Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3), 50px);
+        grid-template-rows: repeat(@(Model.GameState?.GameConfiguration?.BoardSizeHeight ?? 3), 50px);
+    }
+    .cell {
+        width: 50px;
+        height: 50px;
+        border: 1px solid #000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+    .empty {
+        background-color: rgba(0, 0, 0, 0.1);
+        color: transparent;
+    }
+    .movable-grid {
+        background-color: rgba(0, 255, 0, 0.3);
+    }
+    .ai-button {
+        background-color: #6f42c1;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition-duration: 0.4s;
+    }
+    .ai-button:hover {
+        background-color: white;
+        color: #6f42c1;
+        border: 2px solid #6f42c1;
+    }
+    .ai-button:disabled {
+        background-color: #b8a2e3;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+</style>
 </head>
 <h1>Play Game</h1>
 <label id="gameId"> Game ID: @Model.GameId</label><br />
@@ -71,14 +132,12 @@
     <input type="hidden" name="oldY" id="oldY" />
     <input type="hidden" name="action" id="action" />
     <input type="hidden" name="gameId" id="gameId" value="@Model.GameId" />
-
-
+    
     <button type="button" class="action-button" onclick="promptCoordinates('place')">Place Piece</button>
     <button type="button" class="action-button" onclick="promptCoordinates('moveGrid')">Move Playable Grid</button>
     <button type="button" class="action-button" onclick="movePiece('movePiece')">Move Piece</button>
     <button type="button" class="ai-button" onclick="makeRandomMove()">AI Random Move</button>
     <button type="button" class="ai-button" onclick="makeOpponentAIMove()">AI Move for Opponent</button>
-    
 </form>
 
 <a type="submit" class="action-button back-button" asp-page="/Dashboard">Return to Menu</a>
@@ -154,9 +213,6 @@
         .withAutomaticReconnect() // Automatically reconnect on disconnections
         .build();
 
-
-
-
     connection.start()
         .then(() => {
             console.log("SignalR connection started");
@@ -204,7 +260,7 @@
         console.log(gameSession)
         console.log("logging gamesession");
         const isUserTurn = "@Model!.GameState!._nextMoveBy" == gameSession.piece;
-        document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${gameSession.piece}!</h2>`;
+        document.getElementById("userSide").innerHTML = `<h2>Your Pieces: ${gameSession.piece}</h2>`;
         console.log(nextMoveBy)
 
         const buttons = document.querySelectorAll("button[type='button']:not([onclick*='makeOpponentAIMove'])");
@@ -264,15 +320,12 @@
         form.reset();
     });
 
-
     //const username = sessionStorage.getItem('username')
     document.getElementById("username").innerHTML = `<h2>Username: ${username}</h2>`;
-
 
     connection.on("Error", function (message) {
         alert(message);
     });
-
 
     if (window.history.replaceState) {
         window.history.replaceState(null, null, window.location.href);
@@ -346,7 +399,7 @@
 </script>
 </html>
 
-<style>
+@*<style>
     .board-container {
         display: flex;
         flex-direction: column;
@@ -437,4 +490,4 @@
         cursor: not-allowed;
         opacity: 0.6;
     }
-</style>
+</style>*@
