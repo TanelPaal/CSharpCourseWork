@@ -25,7 +25,6 @@
 <script>
     function saveUsername() {
         const username = document.getElementById('username').value;
-        sessionStorage.setItem('username', username);
         window.location.href = `/Dashboard?username=${encodeURIComponent(username)}`;
     }
 
