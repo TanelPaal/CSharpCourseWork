@@ -352,13 +352,23 @@ public static class GameController
     
     private static string ChooseSave()
     {
-        var configMenuItems = new List<MenuItem>();
-        for (int i = 0; i < _gameRepository.GetSaveNames().Count; i++)
+        var saveNames = _gameRepository.GetSaveNames();
+    
+        if (saveNames.Count == 0)
         {
-            var returnValue = _gameRepository.GetSaveNames()[i];
+            Console.WriteLine("No saved games found!");
+            Console.WriteLine("Press any key to shut down the game.");
+            Console.ReadKey();
+            return "R";
+        }
+
+        var configMenuItems = new List<MenuItem>();
+        for (int i = 0; i < saveNames.Count; i++)
+        {
+            var returnValue = saveNames[i];
             configMenuItems.Add(new MenuItem()
             {
-                Title = _gameRepository.GetSaveNames()[i],
+                Title = saveNames[i],
                 Shortcut = (i + 1).ToString(),
                 MenuItemAction = () => returnValue
             });

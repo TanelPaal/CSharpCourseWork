@@ -110,11 +110,11 @@ public class DbGameRepository : IGameRepository
         return gameNames;
     }
 
-    public SavedGame? GetGameById(int gameId)
+    /*public SavedGame? GetGameById(int gameId)
     {
         using var context = _contextFactory.CreateDbContext();
         return context.SavedGames.FirstOrDefault(g => g.Id == gameId);
-    }
+    }*/
     
     public List<GameState> GetAllSavedGames()
     {
