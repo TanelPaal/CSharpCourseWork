@@ -113,7 +113,27 @@
         cursor: not-allowed;
         opacity: 0.6;
     }
-</style>
+    .return-button {
+        background-color: #FF5733; /* Different color background */
+        border: none; /* Remove borders */
+        color: white; /* White text */
+        padding: 15px 32px; /* Some padding */
+        text-align: center; /* Centered text */
+        text-decoration: none; /* Remove underline */
+        display: inline-block; /* Make the buttons appear side by side */
+        font-size: 16px; /* Increase font size */
+        margin: 4px 2px; /* Some margin */
+        cursor: pointer; /* Pointer/hand icon */
+        border-radius: 12px; /* Rounded corners */
+        transition-duration: 0.4s; /* Transition effect */
+    }
+    .return-button:hover {
+        background-color: white; /* White background on hover */
+        color: black; /* Black text on hover */
+        border: 2px solid #FF5733; /* Different color border on hover */
+    }
+
+    </style>
 </head>
 <h1>Play Game</h1>
 <label id="gameId"> Game ID: @Model.GameId</label><br />
@@ -140,7 +160,7 @@
     <button type="button" class="ai-button" onclick="makeOpponentAIMove()">AI Move for Opponent</button>
 </form>
 
-<a type="submit" class="action-button back-button" asp-page="/Dashboard">Return to Menu</a>
+<a type="submit" class="action-button return-button" asp-page="/Dashboard">Return to Menu</a>
 
 <div class="board-container">
     <!-- Column indices -->
@@ -194,7 +214,7 @@
     var username = getQueryParameter('username');
     var gameSession
 
-    const div = document.querySelector('a.back-button')
+    const div = document.querySelector('a.return-button')
     div.href = `/Dashboard?username=${encodeURIComponent(username)}`;
     
     function makeRandomMove() {
