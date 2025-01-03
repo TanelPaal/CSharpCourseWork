@@ -19,25 +19,41 @@ public class GameOver : PageModel
     public string Winner { get; set; } = "";
     public string Loser { get; set; } = "";
 
-    public void OnGet(string gameId)
+    public async Task OnGet(string gameId)
     {
-        var gamePlayers = _gameService._gameSessions[gameId];
-        var gameState = _gameRepository.GetSaveById(int.Parse(gameId));
-        var winningPiece = gameState._nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
-
-        foreach (var player in gamePlayers)
+        try 
         {
-            if (player.Value.Piece == winningPiece.ToString())
+            var gamePlayers = _gameService._gameSessions[gameId];
+            var gameState = _gameRepository.GetSaveById(int.Parse(gameId));
+            var winningPiece = gameState._nextMoveBy == EGamePiece.X ? EGamePiece.O : EGamePiece.X;
+
+            foreach (var player in gamePlayers)
             {
-                Winner = player.Value.Username;
+                if (player.Value.Piece == winningPiece.ToString())
+                {
+                    Winner = player.Value.Username;
+                }
+                else
+                {
+                    Loser = player.Value.Username;
+                }
             }
-            else
+
+            // Store the winner and loser information in TempData
+            TempData["Winner"] = Winner;
+            TempData["Loser"] = Loser;
+
+            // Only clean up the game session if we haven't already
+            if (!string.IsNullOrEmpty(Winner) && !string.IsNullOrEmpty(Loser))
             {
-                Loser = player.Value.Username;
+                await _gameService.EndGame(gameId);
             }
         }
-
-        // Clean up the game session
-        _gameService.EndGame(gameId);
+        catch
+        {
+            // If the game session is already cleaned up, try to get the data from TempData
+            Winner = TempData["Winner"]?.ToString() ?? "";
+            Loser = TempData["Loser"]?.ToString() ?? "";
+        }
     }
 }
