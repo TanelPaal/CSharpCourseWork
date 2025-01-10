@@ -12,8 +12,8 @@ public class IndexModel : PageModel
 
     public IndexModel(AppDbContext context, ILogger<IndexModel> logger)
     {
-        _context = context;
-        _logger = logger;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public List<Recipe> TopRecipes { get; set; } = new();
@@ -22,7 +22,7 @@ public class IndexModel : PageModel
     {
         TopRecipes = await _context.Recipes
             .Include(r => r.Ratings)
-            .Where(r => r.Ratings.Any()) // Only include recipes with ratings
+            .Where(r => r.Ratings != null && r.Ratings.Any())
             .OrderByDescending(r => r.AverageRating)
             .ThenByDescending(r => r.Ratings.Count)
             .Take(6)
