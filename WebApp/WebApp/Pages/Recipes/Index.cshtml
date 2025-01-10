@@ -1,0 +1,76 @@
+@page
+@model WebApp.Pages.Recipes.BrowseModel
+@{
+    ViewData["Title"] = "Browse Recipes";
+}
+
+<h1>🍽️ Browse Recipes</h1>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Filter Recipes</h5>
+            </div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="mb-3">
+                        <label asp-for="PrepTimeRange" class="form-label">Prep Time</label>
+                        <select asp-for="PrepTimeRange" class="form-select">
+                            <option value="">All</option>
+                            <option value="0-15">Quick (0-15 min)</option>
+                            <option value="15-30">Medium (15-30 min)</option>
+                            <option value="30-60">Long (30-60 min)</option>
+                            <option value="60+">Very Long (60+ min)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MinRating" class="form-label">Minimum Rating</label>
+                        <select asp-for="MinRating" class="form-select">
+                            <option value="">All</option>
+                            <option value="4">4+ Stars</option>
+                            <option value="3">3+ Stars</option>
+                            <option value="2">2+ Stars</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        @if (!Model.Recipes.Any())
+        {
+            <div class="alert alert-info">
+                No recipes found. Why not <a asp-page="Create">create one</a>?
+            </div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                @foreach (var recipe in Model.Recipes)
+                {
+                    <div class="col">
+                        <div class="card h-100">
+                            @if (!string.IsNullOrEmpty(recipe.ImageUrl))
+                            {
+                                <img src="@recipe.ImageUrl" class="card-img-top" alt="@recipe.Title">
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@recipe.Title</h5>
+                                <p class="card-text">@recipe.Description</p>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        ⭐ @recipe.AverageRating.ToString("F1") | ⏱️ @recipe.PrepTimeMinutes min
+                                    </small>
+                                </p>
+                                <a asp-page="./Details" asp-route-id="@recipe.Id" class="btn btn-primary">View Recipe</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div> 

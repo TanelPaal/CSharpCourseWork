@@ -1,10 +1,61 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Recipe Roulette";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">🎲 Recipe Roulette 🎲</h1>
+    <p class="lead">Welcome to the wackiest cooking adventure! Where culinary creativity meets chance.</p>
+    
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">🎯 Spin the Recipe Wheel</h5>
+                    <p class="card-text">Feeling adventurous? Let fate decide your next culinary creation!</p>
+                    <a asp-page="/Recipes/Roulette" class="btn btn-primary">Spin the Wheel</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">🎲 Generate Random Recipe</h5>
+                    <p class="card-text">Create wild and wacky recipes automatically!</p>
+                    <a asp-page="/Recipes/RandomRecipeGenerator" class="btn btn-primary">Generate Recipe</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">📖 Browse Recipes</h5>
+                    <p class="card-text">Explore our collection of unusual and surprising recipes!</p>
+                    <a asp-page="/Recipes/Index" class="btn btn-primary">Browse Recipes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">🌟 Create Recipe</h5>
+                    <p class="card-text">Share your wild culinary experiments with the world!</p>
+                    <a asp-page="/Recipes/Create" class="btn btn-primary">Create Recipe</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">🥘 Top Rated</h5>
+                    <p class="card-text">Discover our community's favorite bizarre combinations!</p>
+                    <a asp-page="/Recipes/TopRated/Index" class="btn btn-primary">View Top Rated</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

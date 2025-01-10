@@ -1,0 +1,143 @@
+@page
+@model WebApp.Pages.Recipes.DetailsModel
+@{
+    ViewData["Title"] = Model.Recipe?.Title ?? "Recipe Details";
+}
+
+<div class="row">
+    @if (Model.Recipe == null)
+    {
+        <div class="alert alert-warning">
+            Recipe not found. <a asp-page="./Index">Return to recipe list</a>
+        </div>
+    }
+    else
+    {
+        <div class="col-md-8">
+            <h1>@Model.Recipe.Title</h1>
+            <div class="mb-4">
+                @if (!string.IsNullOrEmpty(Model.Recipe.ImageUrl))
+                {
+                    <img src="@Model.Recipe.ImageUrl" class="img-fluid rounded" alt="@Model.Recipe.Title">
+                }
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Description</h5>
+                    <p class="card-text">@Model.Recipe.Description</p>
+                    <div class="d-flex justify-content-between">
+                        <span>⏱️ Prep Time: @Model.Recipe.PrepTimeMinutes minutes</span>
+                        <span>⭐ Rating: @Model.Recipe.AverageRating.ToString("F1")</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Ingredients</h5>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var ingredient in Model.Recipe.RecipeIngredients)
+                        {
+                            <li class="list-group-item">
+                                @ingredient.Quantity of @ingredient.Ingredient.Name
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Instructions</h5>
+                    <div class="recipe-instructions">
+                        @{
+                            var instructions = Model.Recipe.Instructions.Split(
+                                new[] { "\r\n", "\r", "\n" },
+                                StringSplitOptions.None
+                            );
+                            
+                            <ol class="list-group list-group-numbered">
+                                @foreach (var step in instructions)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(step))
+                                    {
+                                        <li class="list-group-item">@step</li>
+                                    }
+                                }
+                            </ol>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Rate this Recipe</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <input type="hidden" asp-for="Rating.RecipeId" />
+                        
+                        <div class="mb-3">
+                            <label asp-for="Rating.Score" class="form-label">Rating</label>
+                            <select asp-for="Rating.Score" class="form-select">
+                                <option value="">Select rating...</option>
+                                <option value="1">⭐</option>
+                                <option value="2">⭐⭐</option>
+                                <option value="3">⭐⭐⭐</option>
+                                <option value="4">⭐⭐⭐⭐</option>
+                                <option value="5">⭐⭐⭐⭐⭐</option>
+                            </select>
+                            <span asp-validation-for="Rating.Score" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Rating.Comment" class="form-label">Comment</label>
+                            <textarea asp-for="Rating.Comment" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Rating.Comment" class="text-danger"></span>
+                        </div>
+                        
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-primary">Submit Rating</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Ratings</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Recipe.Ratings.Any())
+                    {
+                        <p class="text-muted">No ratings yet. Be the first to rate!</p>
+                    }
+                    else
+                    {
+                        @foreach (var rating in Model.Recipe.Ratings.OrderByDescending(r => r.CreatedAt).Take(5))
+                        {
+                            <div class="mb-3">
+                                <div>
+                                    @for (int i = 0; i < rating.Score; i++)
+                                    {
+                                        <span>⭐</span>
+                                    }
+                                </div>
+                                @if (!string.IsNullOrEmpty(rating.Comment))
+                                {
+                                    <p class="mb-1">@rating.Comment</p>
+                                }
+                                <small class="text-muted">@rating.CreatedAt.ToString("MMM dd, yyyy")</small>
+                                <hr/>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div> 

@@ -1,0 +1,70 @@
+@page
+@model WebApp.Pages.Recipes.RouletteModel
+@{
+    ViewData["Title"] = "Recipe Roulette";
+}
+
+<div class="text-center">
+    <h1 class="display-4">🎲 Recipe Roulette 🎲</h1>
+    <p class="lead">Feeling adventurous? Let's find you a random recipe!</p>
+
+    <form method="post" class="mb-5">
+        <button type="submit" class="btn btn-lg btn-primary">
+            🎯 Spin the Wheel!
+        </button>
+    </form>
+
+    @if (Model.RandomRecipe != null)
+    {
+        <div class="card mx-auto" style="max-width: 600px;">
+            @if (!string.IsNullOrEmpty(Model.RandomRecipe.ImageUrl))
+            {
+                <img src="@Model.RandomRecipe.ImageUrl" class="card-img-top" alt="@Model.RandomRecipe.Title">
+            }
+            <div class="card-body">
+                <h2 class="card-title">@Model.RandomRecipe.Title</h2>
+                <p class="card-text">@Model.RandomRecipe.Description</p>
+                
+                <div class="mb-3">
+                    <h5>Ingredients:</h5>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var ingredient in Model.RandomRecipe.RecipeIngredients)
+                        {
+                            <li class="list-group-item">
+                                @ingredient.Quantity of @ingredient.Ingredient.Name
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <h5>Instructions:</h5>
+                    <div class="recipe-instructions">
+                        @{
+                            var instructions = Model.RandomRecipe.Instructions.Split(
+                                new[] { "\r\n", "\r", "\n" },
+                                StringSplitOptions.None
+                            );
+                            
+                            <ol class="list-group list-group-numbered">
+                                @foreach (var step in instructions)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(step))
+                                    {
+                                        <li class="list-group-item">@step</li>
+                                    }
+                                }
+                            </ol>
+                        }
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>⏱️ Prep Time: @Model.RandomRecipe.PrepTimeMinutes minutes</span>
+                    <a asp-page="/Recipes/Details" asp-route-id="@Model.RandomRecipe.Id" 
+                       class="btn btn-primary">View Full Recipe</a>
+                </div>
+            </div>
+        </div>
+    }
+</div> 
