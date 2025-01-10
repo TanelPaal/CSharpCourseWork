@@ -5,9 +5,6 @@ public class TicTacTwoBrain
 {
     public  GameState _gameState;
 
-    // public int[] GameArea => _gameArea;
-    // public int[]  _gameArea { get; set; }
-
     public TicTacTwoBrain(GameState gameState)
     {
         _gameState = gameState;
