@@ -47,7 +47,7 @@ public static class GameController
             }
             else
             {
-                Console.WriteLine("Invalid input, you fucking moron. I hope you don't do the same mistake twice!");
+                Console.WriteLine("Invalid input. Please try again with the correct format.");
             }
 
         } while (true);
@@ -128,7 +128,7 @@ public static class GameController
 
     private static string GetUserInput()
     {
-        Console.WriteLine("Give me a command, DADDY:");
+        Console.WriteLine("Please enter a command:");
         Console.WriteLine("<1 x,y> to place a piece,");
         Console.WriteLine("<2 x,y> to move the playable area,");
         Console.WriteLine("<3 newX,newY oldX,oldY> to move a placed piece:");
@@ -268,7 +268,7 @@ public static class GameController
             }
         }
 
-        return "fuck knows";
+        return "Unknown error occurred";
     }
     
     private static (int[,] output, bool success, bool hasSecondCoords) RegexValidate(string input)

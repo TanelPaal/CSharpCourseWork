@@ -23,7 +23,7 @@ public class Menus
             {
                 Shortcut = "S",
                 Title = "Start",
-                MenuItemAction = GameController.MainLoop  // Remove () at the end of MainLoop for it to work.
+                MenuItemAction = GameController.MainLoop
             }
         ]);
 }

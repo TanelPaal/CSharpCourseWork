@@ -50,7 +50,6 @@ public static class Visualizer
         void SetBackgroundColor(int x, int y)
         {
             if (gameInstance.IsInsidePlayableArea(x, y))
-                // check if background coord is actually inside the grid if so colour it
                 Console.BackgroundColor = ConsoleColor.DarkBlue;
         }
     }

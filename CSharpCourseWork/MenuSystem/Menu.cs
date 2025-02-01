@@ -112,7 +112,7 @@ public class Menu
             
             if (string.IsNullOrWhiteSpace(userInput))
             {
-                Console.WriteLine("Be nice!!! Choose actually something!!! Try again....Oh GOD...");
+                Console.WriteLine("Please make a selection from the menu options.");
                 Console.WriteLine();
             }
             else
@@ -125,7 +125,7 @@ public class Menu
                     return menuItem;
                 }
                 
-                Console.WriteLine("For the love of God choose something from the existing options...A-10 taking off!");
+                Console.WriteLine("Invalid selection. Please choose from the available options.");
                 Console.WriteLine();
             }
         } while (true);

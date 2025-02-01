@@ -17,25 +17,21 @@ public class DbGameRepository : IGameRepository
     public void SaveGame(GameState gameState, string gameSaveName = null!)
     {
         using var context = _contextFactory.CreateDbContext();
-        // Check if a saved game with the same name exists
         var existingSavedGame = context.SavedGames.FirstOrDefault(g => g.Id == gameState.Id);
 
-        Console.WriteLine(gameState.Id);
         if (existingSavedGame != null)
         {
-            // Update existing game
             existingSavedGame.State = JsonSerializer.Serialize(gameState);
             existingSavedGame.ModifiedAt = DateTime.UtcNow;
-            Console.WriteLine("updated state");
+            Console.WriteLine("Game state updated successfully");
             context.SaveChanges();
         }
         else
         {
-            Console.WriteLine("generating new savegame");
-            // Create new game
+            Console.WriteLine("Creating new game save");
             var dtoSavedGame = new SavedGame
             {
-                Id = gameState.Id, // Use the unique ID we generated
+                Id = gameState.Id,
                 Name = gameSaveName,
                 State = JsonSerializer.Serialize(gameState),
                 ConfigurationId = gameState.GameConfiguration.Id,
@@ -95,8 +91,6 @@ public class DbGameRepository : IGameRepository
         
         return gameState;
     }
-    
-    
 
     public List<string> GetSaveNames()
     {
@@ -109,12 +103,6 @@ public class DbGameRepository : IGameRepository
         }
         return gameNames;
     }
-
-    /*public SavedGame? GetGameById(int gameId)
-    {
-        using var context = _contextFactory.CreateDbContext();
-        return context.SavedGames.FirstOrDefault(g => g.Id == gameId);
-    }*/
     
     public List<GameState> GetAllSavedGames()
     {

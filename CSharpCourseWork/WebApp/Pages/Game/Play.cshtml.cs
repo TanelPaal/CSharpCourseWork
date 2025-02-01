@@ -32,7 +32,6 @@ public class Play : PageModel
     
     public bool IsMovableGrid(int x, int y)
     {
-        // Implement your logic to determine if the cell (x, y) is part of the Movable Grid
         return IsInsidePlayableArea(x, y);
     }
     

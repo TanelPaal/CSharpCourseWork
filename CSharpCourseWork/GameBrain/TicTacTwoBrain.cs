@@ -71,7 +71,7 @@ public class TicTacTwoBrain
 
         if (Math.Abs(_gameState._gameArea[0] - x) > 1 && Math.Abs(_gameState._gameArea[1] - y) > 1)
         {
-            Console.WriteLine("Idiot, you can't move it that far. You saw what happened when we pushed to Moscow!");
+            Console.WriteLine("Invalid move: The playable area can only be moved one space at a time.");
             return false;
         }
         // Check if the move is allowed based on the turn counts
