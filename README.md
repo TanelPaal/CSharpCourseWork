@@ -3,10 +3,11 @@
 **Student:** Tanel Paal  
 **Uni-ID:** tanpaa  
 **Email:** tanpaa@taltech.ee  
-**Student Code:** 222775IADB
+**Student Code:** 222775IADB  
+**Course:** C# Programming (3rd Semester)
 
 ## Project Overview
-This project implements a variant of Tic-Tac-Toe with additional gameplay mechanics, developed as part of the C# course. The solution includes both a console application and a web application with real-time multiplayer capabilities.
+This project implements a variant of Tic-Tac-Toe with additional gameplay mechanics, developed as part of the C# course in the third semester. The solution includes both a console application and a web application with real-time multiplayer capabilities.
 
 ### Key Features
 - Extended Tic-Tac-Toe gameplay with movable game area
