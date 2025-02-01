@@ -1,9 +1,6 @@
 # Tic-Tac-Two Game Project
 
 **Student:** Tanel Paal  
-**Uni-ID:** tanpaa  
-**Email:** tanpaa@taltech.ee  
-**Student Code:** 222775IADB  
 **Course:** C# Programming (3rd Semester)
 
 ## Project Overview
